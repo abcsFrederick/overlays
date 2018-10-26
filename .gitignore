@@ -1,0 +1,9 @@
+*.py[cod]
+node_modules
+_build
+.*.swp
+.*.swo
+env
+dist
+build
+larger_image.egg-info
