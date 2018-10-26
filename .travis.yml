@@ -17,7 +17,9 @@ before_install:
   - cmake --version
 
 install:
-  - cd $GIRDER_PATH
+  - pushd $GIRDER_PATH
+  - pip install --no-cache-dir -U -r requirements-dev.txt -e .[mount]
+  - popd
   - girder-install plugin --symlink $OVERLAYS_PATH
   - ls -l $GIRDER_PATH/plugins
 
