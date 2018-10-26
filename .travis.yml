@@ -1,5 +1,8 @@
 language: python
 
+python:
+  - "3.6"
+
 cache:
   directories:
     - $HOME/.cache
@@ -26,7 +29,7 @@ install:
 script:
   - mkdir -p $GIRDER_BUILD_PATH
   - cd $GIRDER_BUILD_PATH
-  - cmake -DPYTHON_COVERAGE:BOOL=${PY_COVG} -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DRUN_CORE_TESTS:BOOL="OFF" -DTEST_PLUGINS:STRING="overlays" $GIRDER_PATH
+  - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DRUN_CORE_TESTS:BOOL="OFF" -DTEST_PLUGINS:STRING="overlays" $GIRDER_PATH
   - make -j 3
   - JASMINE_TIMEOUT=15000 ctest -VV
 
