@@ -1,0 +1,31 @@
+language: python
+
+cache:
+  directories:
+    - $HOME/.cache
+    - $HOME/girder_build/store
+    - $HOME/girder_build/data
+
+before_install:
+  - GIRDER_VERSION=2.x-maintenance
+  - OVERLAYS_PATH=$TRAVIS_BUILD_DIR
+  - GIRDER_PATH=$HOME/girder/girder
+  - GIRDER_BUILD_PATH=$HOME/girder_build
+
+  - git clone https://github.com/girder/girder.git $GIRDER_PATH && git -C $GIRDER_PATH checkout $GIRDER_VERSION
+  - CACHE=$HOME/.cache CMAKE_VERSION=3.4.3 CMAKE_SHORT_VERSION=3.4 source $GIRDER_PATH/scripts/install_cmake.sh
+  - cmake --version
+
+install:
+  - girder-install plugin --symlink $OVERLAYS_PATH
+  - ls -l $GIRDER_PATH/plugins
+
+script:
+  - mkdir -p $GIRDER_BUILD_PATH
+  - cd $GIRDER_BUILD_PATH
+  - cmake -DPYTHON_COVERAGE:BOOL=${PY_COVG} -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DRUN_CORE_TESTS:BOOL="OFF" -DTEST_PLUGINS:STRING="overlays" $GIRDER_PATH
+  - make -j 3
+  - JASMINE_TIMEOUT=15000 ctest -VV
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -R $OVERLAYS_PATH -s $GIRDER_PATH
