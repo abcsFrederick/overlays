@@ -17,6 +17,7 @@ before_install:
   - cmake --version
 
 install:
+  - cd $GIRDER_PATH
   - girder-install plugin --symlink $OVERLAYS_PATH
   - ls -l $GIRDER_PATH/plugins
 
