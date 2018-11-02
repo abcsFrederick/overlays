@@ -2,7 +2,6 @@
     "name": "Overlays",
     "description": "Overlays for the large_image plugin",
     "version": "0.1.0",
-    "dependencies": ["large_image"],
     "license": "Apache-2.0",
     "grunt": {
         "file": "Gruntfile.js"
