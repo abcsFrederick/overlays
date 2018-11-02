@@ -29,12 +29,18 @@ before_install:
   - mongod --dbpath=/tmp/db >/dev/null 2>/dev/null &
   - mongod --version
 
+  - npm install -g npm
+  - npm install -g npm-install-retry
+  - npm --version
+
 install:
   - pushd $GIRDER_PATH
   - pip install --no-cache-dir -U -r requirements-dev.txt -e .[mount]
   - popd
   - girder-install plugin --symlink $OVERLAYS_PATH
   - ls -l $GIRDER_PATH/plugins
+
+  - npm-install-retry
 
 script:
   - mkdir -p $GIRDER_BUILD_PATH
