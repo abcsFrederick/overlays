@@ -29,9 +29,13 @@ before_install:
   - mongod --dbpath=/tmp/db >/dev/null 2>/dev/null &
   - mongod --version
 
+  - mkdir -p $HOME/.cache/node_modules || true
+  - ln -sf $HOME/.cache/node_modules .
+  - nvm install v8
   - npm install -g npm
   - npm install -g npm-install-retry
   - npm --version
+  - npm prune
 
 install:
   - pushd $GIRDER_PATH
