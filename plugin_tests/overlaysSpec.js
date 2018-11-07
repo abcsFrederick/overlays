@@ -5,5 +5,4 @@ $(function () {
         it('Place hold', function () {
         });
     });
-
 });
