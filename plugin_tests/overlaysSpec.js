@@ -1,5 +1,3 @@
-const testFilePath = 'plugins/large_image/plugin_tests/test_files/';
-
 girderTest.startApp();
 
 $(function () {
@@ -26,22 +24,20 @@ $(function () {
             girderTest.waitForLoad();
         });
         it('create a test overlay', function () {
-            var filename = 'test_RGB_8.png';
-            var path = testFilePath + filename;
             var folderId = Backbone.history.fragment.split('/').pop();
             var itemId, overlayItemId;
             var overlay;
 
             runs(function () {
                 girder.rest.restRequest({
-                    url: 'webclienttest/file',
+                    url: 'item',
                     method: 'POST',
                     data: {
-                        path: path,
+                        name: 'test item',
                         folderId: folderId
                     }
                 }).done(function (resp) {
-                    itemId = resp.itemId;
+                    itemId = resp._id;
                 });
             });
 
@@ -51,14 +47,14 @@ $(function () {
 
             runs(function () {
                 girder.rest.restRequest({
-                    url: 'webclienttest/file',
+                    url: 'item',
                     method: 'POST',
                     data: {
-                        path: path,
+                        name: 'test overlay item',
                         folderId: folderId
                     }
                 }).done(function (resp) {
-                    overlayItemId = resp.itemId;
+                    overlayItemId = resp._id;
                 });
             });
 
