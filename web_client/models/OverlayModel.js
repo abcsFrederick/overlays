@@ -30,7 +30,7 @@ var OverlayModel = AccessControlledModel.extend({
             path = (this.altUrl || this.resourceName) + '/' + this.get('_id');
             type = 'PUT';
         } else {
-            path = (this.altUrl || this.resourceName) + `?itemId=${this.get('itemId')}`;
+            path = (this.altUrl || this.resourceName);
             type = 'POST';
         }
         var data = {};
