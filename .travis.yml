@@ -45,7 +45,7 @@ install:
   - ls -l $GIRDER_PATH/plugins
 
   - npm-install-retry
-  - girder-install web --plugins=overlays --dev
+  - BABEL_ENV=cover NYC_CWD="$OVERLAYS_PATH" girder-install web --plugins=overlays --dev
 
 script:
   - mkdir -p $GIRDER_BUILD_PATH
