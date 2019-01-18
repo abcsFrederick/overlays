@@ -1,8 +1,14 @@
+girderTest.importPlugin('overlays');
+
 girderTest.startApp();
 
 $(function () {
     describe('Test the overlays plugin', function () {
+        var overlayId, overlay;
+        var itemId, overlayItemId;
+
         it('create the admin user', girderTest.createUser('admin', 'admin@email.com', 'Admin', 'Admin', 'testpassword'));
+
         it('go to the collections page', function () {
             runs(function () {
                 $("a.g-nav-link[g-target='collections']").click();
@@ -16,6 +22,7 @@ $(function () {
                 expect($('.g-collection-list-entry').length).toBe(0);
             });
         });
+
         it('create test collection', function () {
             girderTest.createCollection('test collection', 'A test collection', 'test images')();
             runs(function () {
@@ -23,10 +30,11 @@ $(function () {
             });
             girderTest.waitForLoad();
         });
+
         it('create a test overlay', function () {
             var folderId = Backbone.history.fragment.split('/').pop();
-            var itemId, overlayItemId;
-            var overlay;
+            var testOverlay;
+            var done;
 
             runs(function () {
                 girder.rest.restRequest({
@@ -63,22 +71,76 @@ $(function () {
             }, 'simulated binary upload to finish');
 
             runs(function () {
-                girder.rest.restRequest({
-                    url: 'overlay',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        name: 'test overlay',
-                        itemId: itemId,
-                        overlayItemId: overlayItemId
-                    })
-                }).done(function (resp) {
-                    overlay = resp;
+                testOverlay = new girder.plugins.overlays.models.OverlayModel({
+                    name: 'test overlay',
+                    itemId: itemId,
+                    overlayItemId: overlayItemId
+                });
+
+                testOverlay.save().done(function (resp) {
+                    expect(testOverlay.id).toBeDefined();
+                    overlayId = testOverlay.id;
+                    done = true;
                 });
             });
 
             waitsFor(function () {
-                return !!overlay;
+                return done;
+            });
+        });
+
+        it('fetch the test overlay', function () {
+            var done;
+
+            runs(function () {
+                overlay = new girder.plugins.overlays.models.OverlayModel({
+                    _id: overlayId
+                });
+
+                overlay.fetch().done(function (resp) {
+                    expect(resp._id).toEqual(overlayId);
+                    expect(overlay.get('itemId')).toEqual(itemId);
+                    expect(overlay.get('overlayItemId')).toEqual(overlayItemId);
+                    done = true;
+                });
+            });
+
+            waitsFor(function () {
+                return done;
+            });
+        });
+
+        it('update the test overlay', function () {
+            var newName = 'renamed test overlay';
+            var done;
+
+            runs(function () {
+                overlay.set({name: newName});
+                overlay.save().done(function (resp) {
+                    expect(resp._id).toEqual(overlayId);
+                    expect(resp.itemId).toEqual(itemId);
+                    expect(resp.overlayItemId).toEqual(overlayItemId);
+                    expect(resp.name).toEqual(newName);
+                    done = true;
+                });
+            });
+
+            waitsFor(function () {
+                return done;
+            });
+        });
+
+        it('destroy the test overlay', function () {
+            var done;
+
+            runs(function () {
+                overlay.destroy().done(function (resp) {
+                    done = true;
+                });
+            });
+
+            waitsFor(function () {
+                return done;
             });
         });
     });

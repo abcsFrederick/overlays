@@ -74,7 +74,7 @@ class Overlay(AccessControlledModel):
 
     def updateOverlay(self, doc, update):
         doc.update(update)
-        self.save(doc)
+        return self.save(doc)
 
     def validate(self, doc):
         validation = (
