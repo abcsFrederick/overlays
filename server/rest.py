@@ -89,24 +89,19 @@ class OverlayResource(Resource):
         user = self.getCurrentUser()
         overlay = self.getBodyJson()
 
-        overlay['creatorId'] = user['_id']
-
         if 'itemId' in overlay:
             item = Item().load(overlay['itemId'], force=True)
             Item().requireAccess(item, user=user, level=AccessType.READ)
-            overlay['itemId'] = item['_id']
 
         if 'overlayItemId' in overlay:
             overlayItem = Item().load(overlay['overlayItemId'], force=True)
             Item().requireAccess(overlayItem, user=user, level=AccessType.READ)
-            overlay['overlayItemId'] = overlayItem['_id']
-
         if Colormap is not None and 'colormapId' in overlay and overlay['colormapId']:
             colormap = Colormap().load(overlay['colormapId'], force=True)
             Colormap().requireAccess(colormap, user=user, level=AccessType.READ)
             overlay['colormapId'] = colormap['_id']
 
-        return Overlay().createOverlay(user, **overlay)
+        return Overlay().createOverlay(item, overlayItem, user, **overlay)
 
     @describeRoute(
         Description('Delete an overlay.')
@@ -152,31 +147,28 @@ class OverlayResource(Resource):
     @loadmodel(model='overlay', plugin='overlays', level=AccessType.WRITE)
     @filtermodel(model='overlay', plugin='overlays')
     def updateOverlay(self, overlay, params):
-        user = self.getCurrentUser()
         update = self.getBodyJson()
-        if overlay['creatorId'] != user['_id']:
-            raise RestException('Invalid overlay for user', 403)
-        if 'creatorId' in update:
-            if ObjectId(update['creatorId']) != user['_id']:
-                raise RestException('Cannot change overlay user', 403)
-            del update['creatorId']
+        if ('creatorId' in update and
+                ObjectId(update['creatorId']) != overlay['creatorId']):
+            raise RestException('Cannot change overlay user', 403)
+        user = self.getCurrentUser()
         if 'itemId' in update:
             item = Item().load(update['itemId'], force=True)
             if item is not None:
                 Item().requireAccess(item, user=user, level=AccessType.READ)
-                update['itemId'] = item['_id']
         if 'overlayItemId' in update:
             overlayItem = Item().load(update['overlayItemId'], force=True)
             if item is not None:
                 Item().requireAccess(overlayItem,
                                      user=user, level=AccessType.READ)
-                update['overlayItemId'] = overlayItem['_id']
         if Colormap is not None and update.get('colormapId'):
             colormap = Colormap().load(update['colormapId'], force=True)
             if colormap is not None:
                 Colormap().requireAccess(colormap,
                                          user=user, level=AccessType.READ)
-                update['colormapId'] = colormap['_id']
+        overlay.update(update)
         if '_id' in update:
             del update['_id']
-        return Overlay().updateOverlay(overlay, update)
+        if 'updatedId' in update:
+            del update['updatedId']
+        return Overlay().updateOverlay(overlay, user=user)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from girder import events
 from girder.constants import AccessType, SortDir
 from girder.exceptions import ValidationException
@@ -22,6 +24,9 @@ class Overlay(AccessControlledModel):
         fields = (
             '_id',
             'creatorId',
+            'updatedId',
+            'created',
+            'updated',
             'description',
             'displayed',
             'index',
@@ -65,16 +70,29 @@ class Overlay(AccessControlledModel):
             return overlay['index'] + 1
         return 0
 
-    def createOverlay(self, user, **doc):
-        self.setUserAccess(doc, user=user, level=AccessType.ADMIN,
+    def createOverlay(self, item, overlayItem, creator, **kwargs):
+        now = datetime.datetime.utcnow()
+        doc = {
+            'itemId': item['_id'],
+            'overlayItemId': overlayItem['_id'],
+            'creatorId': creator['_id'],
+            'updatedId': creator['_id'],
+            'created': now,
+            'updated': now,
+        }
+        doc.update(kwargs)
+        doc['index'] = self._getMaxIndex(doc['itemId'], doc['creatorId'])
+
+        self.setUserAccess(doc, user=creator, level=AccessType.ADMIN,
                            save=False)
-        if 'itemId' in doc and 'creatorId' in doc:
-            doc['index'] = self._getMaxIndex(doc['itemId'], doc['creatorId'])
+
         return self.save(doc)
 
-    def updateOverlay(self, doc, update):
-        doc.update(update)
-        return self.save(doc)
+    def updateOverlay(self, overlay, user=None):
+        overlay['updated'] = datetime.datetime.utcnow()
+        if user is not None:
+            overlay['updatedId'] = user['_id']
+        return self.save(overlay)
 
     def validate(self, doc):
         validation = (

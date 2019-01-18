@@ -27,6 +27,7 @@ from tests import base
 
 from girder.models.folder import Folder
 from girder.models.user import User
+from girder.models.item import Item
 
 
 def setUpModule():
@@ -60,6 +61,8 @@ class OverlaysTestCase(base.TestCase):
             else:
                 self.privateFolder = folder
 
+
+class OverlaysRESTTestCase(OverlaysTestCase):
     def _createItem(self, parentId, name, description, user):
         params = {
             'name': name,
@@ -213,3 +216,19 @@ class OverlaysTestCase(base.TestCase):
         )
         self.assertStatusOk(response)
         self.assertEqual(newName, self._getOverlay(overlayId)['name'])
+
+
+class OverlaysModelTestCase(OverlaysTestCase):
+    def testOverlayUpdate(self):
+        from girder.plugins.overlays.models.overlay import Overlay
+
+        item = Item().createItem('Test item', self.users[0], self.publicFolder)
+        overlayItem = Item().createItem('Test overlay item', self.users[0],
+                                        self.publicFolder)
+        overlay = {
+            'name': 'Test overlay',
+        }
+        overlay = Overlay().createOverlay(item, overlayItem, self.users[0],
+                                          **overlay)
+        overlay = Overlay().load(overlay['_id'], user=self.users[0])
+        Overlay().updateOverlay(overlay)
