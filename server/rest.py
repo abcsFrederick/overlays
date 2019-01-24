@@ -62,12 +62,13 @@ class OverlayResource(Resource):
         user = self.getCurrentUser()
         limit, offset, sort = self.getPagingParameters(params)
         if sort is None:
-            sort = [('itemId', SortDir.ASCENDING), ('index', SortDir.ASCENDING)]
-        query = {
-            'creatorId': user['_id'],
-        }
+            sort = [
+                ('created', SortDir.ASCENDING),
+                ('index', SortDir.ASCENDING),
+            ]
+        query = {}
         if 'itemId' in params:
-            query['itemId'] = ObjectId(params['itemId'])
+            query['itemId'] = params['itemId']
         return list(Overlay().filterResultsByPermission(
             cursor=Overlay().find(query, sort=sort),
             user=user,

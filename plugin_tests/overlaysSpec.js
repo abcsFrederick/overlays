@@ -110,6 +110,28 @@ $(function () {
             });
         });
 
+        it('fetch the test overlay collection by item', function () {
+            var done;
+
+            runs(function () {
+                var overlays = new girder.plugins.overlays.collections.OverlayCollection();
+                overlays.fetch({
+                    itemId: itemId
+                }).done(function () {
+                    expect(overlays.length).toEqual(1);
+                    overlay = overlays.pop();
+                    expect(overlay.get('_id')).toEqual(overlayId);
+                    expect(overlay.get('itemId')).toEqual(itemId);
+                    expect(overlay.get('overlayItemId')).toEqual(overlayItemId);
+                    done = true;
+                });
+            });
+
+            waitsFor(function () {
+                return done;
+            });
+        });
+
         it('update the test overlay', function () {
             var newName = 'renamed test overlay';
             var done;
