@@ -153,7 +153,7 @@ class OverlayResource(Resource):
                 Item().requireAccess(item, user=user, level=AccessType.READ)
         if 'overlayItemId' in update:
             overlayItem = Item().load(update['overlayItemId'], force=True)
-            if item is not None:
+            if overlayItem is not None:
                 Item().requireAccess(overlayItem,
                                      user=user, level=AccessType.READ)
         if Colormap is not None and update.get('colormapId'):

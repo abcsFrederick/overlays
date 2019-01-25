@@ -168,6 +168,20 @@ class OverlaysRESTTestCase(OverlaysTestCase):
         self.assertStatusOk(overlays)
         self.assertEqual(len(overlays.json), 0)
 
+    def testOverlayFindByItem(self):
+        name = 'Test find by item'
+        user = self.users[0]
+        parentItem, _, _ = self._createOverlay(name, user)
+        overlays = self.request(
+            path='/overlay',
+            method='GET',
+            user=user,
+            params={'itemId': parentItem['_id']}
+        )
+        self.assertStatusOk(overlays)
+        self.assertEqual(len(overlays.json), 1)
+        self.assertEqual(overlays.json[0]['name'], name)
+
     def testOverlayGet(self):
         self._createOverlay()
         _, _, overlay = self._createOverlay()
@@ -207,6 +221,19 @@ class OverlaysRESTTestCase(OverlaysTestCase):
         self.assertEqual(name, self._getOverlay(overlayId)['name'])
 
         newName = 'New name'
+
+        response = self.request(
+            path='/overlay/%s' % overlayId,
+            method='PUT',
+            user=self.users[0],
+            type='application/json',
+            body=json.dumps({
+                'name': newName,
+                'creatorId': str(self.users[1]['_id']),
+            }),
+        )
+        self.assertStatus(response, 403)
+
         response = self.request(
             path='/overlay/%s' % overlayId,
             method='PUT',
@@ -216,6 +243,59 @@ class OverlaysRESTTestCase(OverlaysTestCase):
         )
         self.assertStatusOk(response)
         self.assertEqual(newName, self._getOverlay(overlayId)['name'])
+
+        parentItem = self._createItem(self.publicFolder['_id'], 'new parent',
+                                      'New parent item of overlay',
+                                      self.users[0])
+        response = self.request(
+            path='/overlay/%s' % overlayId,
+            method='PUT',
+            user=self.users[0],
+            type='application/json',
+            body=json.dumps({'itemId': str(parentItem['_id'])}),
+        )
+        self.assertStatusOk(response)
+        self.assertEqual(parentItem['_id'],
+                         self._getOverlay(overlayId)['itemId'])
+
+        parentItem = self._createItem(self.privateFolder['_id'],
+                                      'someone else\'s parent',
+                                      'Someone else\'s parent item',
+                                      self.users[0])
+        response = self.request(
+            path='/overlay/%s' % overlayId,
+            method='PUT',
+            user=self.users[1],
+            type='application/json',
+            body=json.dumps({'itemId': str(parentItem['_id'])}),
+        )
+        self.assertStatus(response, 403)
+
+        overlayItem = self._createItem(self.publicFolder['_id'], 'new overlay',
+                                       'New overlay item', self.users[0])
+        response = self.request(
+            path='/overlay/%s' % overlayId,
+            method='PUT',
+            user=self.users[0],
+            type='application/json',
+            body=json.dumps({'overlayItemId': str(overlayItem['_id'])}),
+        )
+        self.assertStatusOk(response)
+        self.assertEqual(overlayItem['_id'],
+                         self._getOverlay(overlayId)['overlayItemId'])
+
+        overlayItem = self._createItem(self.privateFolder['_id'],
+                                       'someone else\'s overlay',
+                                       'Someone else\'s overlay item',
+                                       self.users[0])
+        response = self.request(
+            path='/overlay/%s' % overlayId,
+            method='PUT',
+            user=self.users[1],
+            type='application/json',
+            body=json.dumps({'overlayItemId': str(overlayItem['_id'])}),
+        )
+        self.assertStatus(response, 403)
 
 
 class OverlaysModelTestCase(OverlaysTestCase):
