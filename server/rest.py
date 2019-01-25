@@ -114,9 +114,6 @@ class OverlayResource(Resource):
     @loadmodel(model='overlay', plugin='overlays', level=AccessType.WRITE)
     @filtermodel(model='overlay', plugin='overlays')
     def deleteOverlay(self, overlay, params):
-        user = self.getCurrentUser()
-        if overlay['creatorId'] != user['_id']:
-            raise RestException('Invalid overlay for user', 403)
         Overlay().remove(overlay)
 
     @describeRoute(
@@ -131,9 +128,6 @@ class OverlayResource(Resource):
     @loadmodel(model='overlay', plugin='overlays', level=AccessType.READ)
     @filtermodel(model='overlay', plugin='overlays')
     def getOverlay(self, overlay, params):
-        user = self.getCurrentUser()
-        if overlay['creatorId'] != user['_id']:
-            raise RestException('Invalid overlay for user', 403)
         return overlay
 
     @describeRoute(
@@ -151,7 +145,7 @@ class OverlayResource(Resource):
         update = self.getBodyJson()
         if ('creatorId' in update and
                 ObjectId(update['creatorId']) != overlay['creatorId']):
-            raise RestException('Cannot change overlay user', 403)
+            raise RestException('Cannot change overlay creator', 403)
         user = self.getCurrentUser()
         if 'itemId' in update:
             item = Item().load(update['itemId'], force=True)
