@@ -166,7 +166,7 @@ class OverlaysRESTTestCase(OverlaysTestCase):
             user=self.users[1]
         )
         self.assertStatusOk(overlays)
-        self.assertEqual(len(overlays.json), 0)
+        self.assertEqual(len(overlays.json), 1)
 
     def testOverlayFindByItem(self):
         name = 'Test find by item'
@@ -307,8 +307,9 @@ class OverlaysModelTestCase(OverlaysTestCase):
                                         self.publicFolder)
         overlay = {
             'name': 'Test overlay',
+            'itemId': item['_id'],
+            'overlayItemId': overlayItem['_id'],
         }
-        overlay = Overlay().createOverlay(item, overlayItem, self.users[0],
-                                          **overlay)
+        overlay = Overlay().createOverlay(overlay, self.users[0])
         overlay = Overlay().load(overlay['_id'], user=self.users[0])
         Overlay().updateOverlay(overlay)

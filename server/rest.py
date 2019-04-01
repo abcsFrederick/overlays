@@ -63,8 +63,9 @@ class OverlayResource(Resource):
         limit, offset, sort = self.getPagingParameters(params)
         if sort is None:
             sort = [
-                ('created', SortDir.ASCENDING),
+                ('itemId', SortDir.ASCENDING),
                 ('index', SortDir.ASCENDING),
+                ('created', SortDir.ASCENDING),
             ]
         query = {}
         if 'itemId' in params:
@@ -92,17 +93,17 @@ class OverlayResource(Resource):
 
         if 'itemId' in overlay:
             item = Item().load(overlay['itemId'], force=True)
-            Item().requireAccess(item, user=user, level=AccessType.READ)
+            Item().requireAccess(item, user=user, level=AccessType.WRITE)
 
         if 'overlayItemId' in overlay:
             overlayItem = Item().load(overlay['overlayItemId'], force=True)
             Item().requireAccess(overlayItem, user=user, level=AccessType.READ)
-        if Colormap is not None and 'colormapId' in overlay and overlay['colormapId']:
+
+        if Colormap is not None and overlay.get('colormapId'):
             colormap = Colormap().load(overlay['colormapId'], force=True)
             Colormap().requireAccess(colormap, user=user, level=AccessType.READ)
-            overlay['colormapId'] = colormap['_id']
 
-        return Overlay().createOverlay(item, overlayItem, user, **overlay)
+        return Overlay().createOverlay(overlay, user)
 
     @describeRoute(
         Description('Delete an overlay.')
@@ -136,7 +137,7 @@ class OverlayResource(Resource):
         .param('body', 'A JSON object containing the overlay.',
                paramType='body')
         .errorResponse('Write access was denied for the item.', 403)
-        .errorResponse('Overlays not found.', 404)
+        .errorResponse('Overlay not found.', 404)
     )
     @access.user
     @loadmodel(model='overlay', plugin='overlays', level=AccessType.WRITE)
@@ -147,23 +148,17 @@ class OverlayResource(Resource):
                 ObjectId(update['creatorId']) != overlay['creatorId']):
             raise RestException('Cannot change overlay creator', 403)
         user = self.getCurrentUser()
-        if 'itemId' in update:
-            item = Item().load(update['itemId'], force=True)
-            if item is not None:
-                Item().requireAccess(item, user=user, level=AccessType.READ)
         if 'overlayItemId' in update:
             overlayItem = Item().load(update['overlayItemId'], force=True)
             if overlayItem is not None:
-                Item().requireAccess(overlayItem,
-                                     user=user, level=AccessType.READ)
+                Item().requireAccess(overlayItem, user=user,
+                                     level=AccessType.READ)
         if Colormap is not None and update.get('colormapId'):
             colormap = Colormap().load(update['colormapId'], force=True)
             if colormap is not None:
-                Colormap().requireAccess(colormap,
-                                         user=user, level=AccessType.READ)
+                Colormap().requireAccess(colormap, user=user,
+                                         level=AccessType.READ)
+        for key in ('_id', 'creatorId', 'updatedId', 'created', 'updated'):
+            update.pop(key, None)
         overlay.update(update)
-        if '_id' in update:
-            del update['_id']
-        if 'updatedId' in update:
-            del update['updatedId']
         return Overlay().updateOverlay(overlay, user=user)

@@ -6,10 +6,11 @@ import datetime
 from girder import events
 from girder.constants import AccessType, SortDir
 from girder.exceptions import ValidationException
-from girder.models.model_base import AccessControlledModel
+from girder.models.model_base import Model
+from girder.utility import acl_mixin
 
 
-class Overlay(AccessControlledModel):
+class Overlay(acl_mixin.AccessControlMixin, Model):
     def initialize(self):
         self.name = 'overlay'
         self.ensureIndices([
@@ -20,6 +21,12 @@ class Overlay(AccessControlledModel):
             'overlayItemId',
             'colormapId',
         ])
+        self.ensureTextIndex({
+            'name': 10,
+            'description': 1
+        })
+        self.resourceColl = 'item'
+        self.resourceParent = 'itemId'
 
         fields = (
             '_id',
@@ -60,31 +67,23 @@ class Overlay(AccessControlledModel):
         for overlay in self.find({'overlayItemId': item['_id']}):
             self.remove(overlay)
 
-    def _getMaxIndex(self, itemId, creatorId):
-        query = {
-            'itemId': itemId,
-            'creatorId': creatorId,
-        }
-        for overlay in self.find(query, sort=[('index', SortDir.DESCENDING)],
+    def _getMaxIndex(self, itemId):
+        for overlay in self.find({'itemId': itemId},
+                                 sort=[('index', SortDir.DESCENDING)],
                                  fields=['index']):
             return overlay['index'] + 1
         return 0
 
-    def createOverlay(self, item, overlayItem, creator, **kwargs):
+    def createOverlay(self, overlay, creator):
         now = datetime.datetime.utcnow()
         doc = {
-            'itemId': item['_id'],
-            'overlayItemId': overlayItem['_id'],
             'creatorId': creator['_id'],
             'updatedId': creator['_id'],
             'created': now,
             'updated': now,
         }
-        doc.update(kwargs)
-        doc['index'] = self._getMaxIndex(doc['itemId'], doc['creatorId'])
-
-        self.setUserAccess(doc, user=creator, level=AccessType.ADMIN,
-                           save=False)
+        doc.update(overlay)
+        doc['index'] = self._getMaxIndex(doc['itemId'])
 
         return self.save(doc)
 
@@ -105,4 +104,20 @@ class Overlay(AccessControlledModel):
         for field, message in validation:
             if doc.get(field) is None:
                 raise ValidationException(message, field)
+        self.validateIndex(doc)
         return doc
+
+    # TODO: move to collection?
+    def validateIndex(self, overlay):
+        query = {'itemId': overlay['itemId'], 'index': overlay['index']}
+        if len(list(self.find(query, limit=2))) > 1:
+            message = 'Duplicate index value %d' % overlay['index']
+            raise ValidationException(message, 'index')
+
+    # TODO: move to collection?
+    def updateIndex(self, overlay):
+        query = {'itemId': overlay['itemId']}
+        sort = [('index', SortDir.ASCENDING), ('created', SortDir.ASCENDING)]
+        for i, overlay in enumerate(self.find(query, sort=sort)):
+            overlay['index'] = i
+            self.save(overlay)
