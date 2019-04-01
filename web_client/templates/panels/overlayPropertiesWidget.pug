@@ -1,0 +1,38 @@
+extends ./panel.pug
+
+block title
+  | #[span.icon-cog] #{title} #[span.h-panel-name #{name}]
+
+block content
+  .form-group
+    .checkbox.h-overlay-toggle
+      label(for='h-overlay-label', title='The overlay image is a label image.')
+        input#h-overlay-label(type='checkbox', checked=label)
+        | Label
+      label(for='h-overlay-invert-label', title='Invert label image values')
+        input#h-overlay-invert-label(type='checkbox', checked=invertLabel)
+        | Invert
+      label(for='h-overlay-flatten-label', title='Flatten to 1-bit label')
+        input#h-overlay-flatten-label(type='checkbox', checked=flattenLabel)
+        | Flatten
+      label(for='h-overlay-bitmask-label', title='Label image values are bitmasks')
+        input#h-overlay-bitmask-label(type='checkbox', checked=bitmask)
+        | Bitmask
+  .form-group
+    label#h-overlay-opacity-label(for='h-overlay-opacity') = `Opacity ${(opacity * 100).toFixed()}%`
+    input#h-overlay-opacity(
+        type="range", min="0", max="1", step="0.01", value=opacity)
+  #h-overlay-offset-group.form-group
+    label(for='h-overlay-offset') Offset
+    label(for='h-overlay-offset-x') x
+    span
+      input#h-overlay-offset-x.input-sm.form-control(type='number', value=offset.x)
+    label(for='h-overlay-offset-y') y
+    span
+      input#h-overlay-offset-y.input-sm.form-control(type='number', value=offset.y)
+  .form-group
+    label Colormap
+    #h-overlay-colormap-selector
+  .form-group
+    label(for='h-histogram') Levels
+    .h-histogram-widget-container

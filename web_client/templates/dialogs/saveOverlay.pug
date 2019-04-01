@@ -1,0 +1,28 @@
+.modal-dialog(role='document')
+  .modal-content
+    form.modal-form(role='form')
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') &times;
+        h4.modal-title #{title}
+      .modal-body
+        .form-group
+          label(for='h-overlay-item') Overlay
+          #h-browser-container.g-browser-widget.hidden
+          input#h-overlay-item.input-sm.form-control(
+            type='text', placeholder='Select an overlay image', readonly)
+          #h-overlay-select.button.btn.btn-default.h-open-image(type='button')
+            | #[span.icon-picture] Select Overlay Image
+        .form-group
+          label(for='h-overlay-name') Name
+          input#h-overlay-name.input-sm.form-control(
+            type='text', placeholder='Enter a name for the overlay', value=name)
+        .form-group
+          label(for='h-overlay-description') Description
+          textarea#h-overlay-description.form-control.input-sm(
+            rows='6', placeholder='Enter an optional description')
+            | #{description}
+        .g-validation-failed-message.hidden
+      .modal-footer
+        button.btn.btn-small.btn-default.h-cancel(type='button', data-dismiss='modal') Cancel
+        button.btn.btn-small.btn-primary.h-submit(type='submit') Save

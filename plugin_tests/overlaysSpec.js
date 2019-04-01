@@ -1,3 +1,9 @@
+girderTest.importPlugin('jobs');
+girderTest.importPlugin('worker');
+girderTest.importPlugin('large_image');
+girderTest.importPlugin('slicer_cli_web');
+girderTest.importPlugin('histogram');
+girderTest.importPlugin('colormaps');
 girderTest.importPlugin('overlays');
 
 girderTest.startApp();

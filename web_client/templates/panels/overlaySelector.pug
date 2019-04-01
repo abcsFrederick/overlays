@@ -1,0 +1,61 @@
+extends ./panel.pug
+
+block title
+  | #[span.icon-tags] #{title}
+
+block content
+  .btn-group.h-hide-show-buttons(role='group')
+    .btn-group.btn-group-sm(role='group')
+      button.btn.btn-default.h-show-all-overlays(type='button', title='Show all overlays')
+        | #[span.icon-eye]
+    .btn-group.btn-group-sm(role='group')
+      button.btn.btn-default.h-hide-all-overlays(type='button', title='Hide all overlays')
+        | #[span.icon-eye-off]
+    span.h-overlays-opacity-container(title=`Overlay opacity ${(opacity * 100).toFixed()}%`)
+      input#h-overlays-opacity(
+          type="range", min="0", max="1", step="0.01", value=opacity)
+
+  - var admin = user && user.get && user.get('admin');
+  each overlay, index in overlays
+    - var name = overlay.get('name');
+    - var displayed = overlay.get('displayed');
+    - var loading = overlay.get('loading');
+    - var classes = [];
+    if overlay.id === activeOverlay
+      - classes.push('h-active-overlay');
+    if overlay.get('highlight')
+      - classes.push('h-highlight-overlay')
+    .h-overlay(data-id=overlay.id, class=classes)
+      if loading
+        span.icon-spin3.animate-spin.h-float-left
+      else if displayed
+        span.icon-eye.h-toggle-overlay.h-float-left(
+          data-toggle='tooltip', title='Hide overlay')
+      else
+        span.icon-eye-off.h-toggle-overlay.h-float-left(
+          data-toggle='tooltip', title='Show overlay')
+      span.h-overlay-name(title=name) #{name}
+
+      span.h-overlay-right
+        if writeAccess(overlay)
+          span.icon-cancel.h-delete-overlay(
+              data-toggle='tooltip', title='Remove overlay')
+          span.icon-cog.h-edit-overlay(
+              data-toggle='tooltip', title='Edit overlay')
+          if index
+            span.icon-up-big.h-move-overlay-up(
+                data-toggle='tooltip', title='Move overlay up')
+          else
+            span.icon-up-big.h-move-overlay-up.h-move-overlay-disabled(
+                data-toggle='tooltip', title='Move overlay up')
+          if index < overlays.length - 1
+            span.icon-down-big.h-move-overlay-down(
+                data-toggle='tooltip', title='Move overlay down')
+          else
+            span.icon-down-big.h-move-overlay-down.h-move-overlay-disabled(
+                data-toggle='tooltip', title='Move overlay down')
+
+  .checkbox.h-overlay-toggle
+    button.btn.btn-sm.btn-primary.h-create-overlay
+      | #[span.icon-plus-squared] New
+    .clearfix

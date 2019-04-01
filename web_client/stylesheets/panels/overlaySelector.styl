@@ -1,0 +1,39 @@
+#h-overlays-opacity
+    width 196px
+
+.h-overlay
+    border-radius 3px
+    span
+        cursor pointer
+    .h-float-left
+        float left
+        margin-right 0.5em
+
+    .h-overlay-right
+        float right
+
+    a
+        color #333
+    .h-overlay-name
+        width 164px
+        display inline-block
+        text-overflow ellipsis
+        white-space nowrap
+        overflow hidden
+
+.h-overlay.h-active-overlay
+  background-color #c5cae9 !important
+
+.h-overlay.h-highlight-overlay
+  background-color #ccc
+
+/*
+.h-create-overlay
+  float right
+ */
+
+.h-overlay:hover
+  background-color #eee
+
+.h-move-overlay-disabled
+  opacity 0.5
