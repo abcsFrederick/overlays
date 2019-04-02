@@ -88,9 +88,9 @@ before_install:
     - GIRDER_BUILD_PATH=$HOME/girder_build
     - GIRDER_WORKER_PATH=$HOME/girder/girder_worker
     - LARGE_IMAGE_PATH=$GIRDER_PATH/plugins/large_image
-    - SLICER_CLI_WEB_PATH=$girder_path/plugins/slicer_cli_web
-    - HISTOGRAM_PATH=$girder_path/plugins/histogram
-    - COLORMAPS_PATH=$girder_path/plugins/colormaps
+    - SLICER_CLI_WEB_PATH=$GIRDER_PATH/plugins/slicer_cli_web
+    - HISTOGRAM_PATH=$GIRDER_PATH/plugins/histogram
+    - COLORMAPS_PATH=$GIRDER_PATH/plugins/colormaps
 
     - mkdir -p $HOME/.cache/node_modules || true
     - ln -sf $HOME/.cache/node_modules .
