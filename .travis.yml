@@ -117,9 +117,9 @@ before_install:
     # so install it from source.
     - cd $LIB_BUILD_PATH
     - if [[ ! -d $OPENJPEG_DIR ]]; then
-      wget -O "openjpeg-$OPENJPEG_VERSION.tar.gz" "https://github.com/uclouvain/openjpeg/archive/$OPENJPEG_FILE" &&
-      tar -zxpf "openjpeg-$OPENJPEG_VERSION.tar.gz" ;
-    fi
+          wget -O "openjpeg-$OPENJPEG_VERSION.tar.gz" "https://github.com/uclouvain/openjpeg/archive/$OPENJPEG_FILE" &&
+          tar -zxpf "openjpeg-$OPENJPEG_VERSION.tar.gz" ;
+      fi
     - cd "$OPENJPEG_DIR"
     # - wget -O openjpeg-1.5.2.tar.gz https://github.com/uclouvain/openjpeg/archive/version.1.5.2.tar.gz
     # - tar -zxf openjpeg-1.5.2.tar.gz
@@ -133,9 +133,9 @@ before_install:
     # Build libtiff so it will use our openjpeg
     - cd $LIB_BUILD_PATH
     - if [[ ! -d "tiff-$LIBTIFF_VERSION" ]]; then
-        wget -O "tiff-$LIBTIFF_VERSION.tar.gz" "http://download.osgeo.org/libtiff$LIBTIFF_DIR/tiff-$LIBTIFF_VERSION.tar.gz" &&
-        tar -zxpf "tiff-$LIBTIFF_VERSION.tar.gz" ;
-    fi
+          wget -O "tiff-$LIBTIFF_VERSION.tar.gz" "http://download.osgeo.org/libtiff$LIBTIFF_DIR/tiff-$LIBTIFF_VERSION.tar.gz" &&
+          tar -zxpf "tiff-$LIBTIFF_VERSION.tar.gz" ;
+      fi
     - cd "tiff-$LIBTIFF_VERSION"
     - ./configure
     - make -j 3
@@ -146,9 +146,9 @@ before_install:
     # Build OpenSlide ourselves so that it will use our libtiff
     - cd $LIB_BUILD_PATH
     - if [[ ! -d openslide-3.4.1 ]]; then
-        wget -O openslide-3.4.1.tar.gz https://github.com/openslide/openslide/archive/v3.4.1.tar.gz &&
-        tar -zxpf openslide-3.4.1.tar.gz ;
-    fi
+          wget -O openslide-3.4.1.tar.gz https://github.com/openslide/openslide/archive/v3.4.1.tar.gz &&
+          tar -zxpf openslide-3.4.1.tar.gz ;
+      fi
     - cd openslide-3.4.1
     - autoreconf -i
     - ./configure
@@ -156,26 +156,6 @@ before_install:
     - sudo make install
     - sudo ldconfig
     # - cd $LARGE_IMAGE_PATH
-
-    # Build vips to use our libraries
-    - if [ "$BUILD_VIPS" = "yes" ]; then
-        cd $LIB_BUILD_PATH &&
-        if [ ! -f vips-8.7.0/config.status ]; then
-            if [[ ! -d vips-8.7.0 ]]; then
-                wget -O vips-8.7.0.tar.gz https://github.com/libvips/libvips/releases/download/v8.7.0/vips-8.7.0.tar.gz &&
-                tar -zxpf vips-8.7.0.tar.gz ;
-            fi &&
-            cd vips-8.7.0 &&
-            ./configure &&
-            make -j 3 >/tmp/vips_build.txt ;
-        else
-            cd vips-8.7.0 ;
-        fi &&
-        sudo make install &&
-        sudo ldconfig ;
-    fi
-    # - cd $LARGE_IMAGE_PATH
-    - vips --version
 
     - cd $OVERLAYS_PATH
 
@@ -189,11 +169,11 @@ before_install:
     # Change in travis in 2017-09 require sudo for pip2 when in the python3 main
     # environment
     - if [ -n "${PY3}" ]; then
-        sudo pip2 install --no-cache-dir -U setuptools &&
-        sudo pip2 install --no-cache-dir -U $GIRDER_WORKER_PATH'[girder_io]' ;
-    else
-        pip install --no-cache-dir -U $GIRDER_WORKER_PATH'[girder_io]' ;
-    fi
+          sudo pip2 install --no-cache-dir -U setuptools &&
+          sudo pip2 install --no-cache-dir -U $GIRDER_WORKER_PATH'[girder_io]' ;
+      else
+          pip install --no-cache-dir -U $GIRDER_WORKER_PATH'[girder_io]' ;
+      fi
 
     - git clone https://github.com/girder/slicer_cli_web.git $SLICER_CLI_WEB_PATH && git -C $SLICER_CLI_WEB_PATH checkout $SLICER_CLI_WEB_VERSION
 
@@ -209,11 +189,11 @@ install:
     # Install all extras (since "girder-install plugin" does not provide a mechanism to specify them
     # Trusty supports gdal 1.10.0; don't test mapnik on Python 3 (for now)
     - if [ -n "${PY3}" ]; then
-        pip install -e $LARGE_IMAGE_PATH[memcached,openslide] ;
-    else
-        pip install gdal==1.10.0 &&
-        pip install -e $LARGE_IMAGE_PATH[memcached,openslide,mapnik] ;
-    fi
+          pip install -e $LARGE_IMAGE_PATH[memcached,openslide] ;
+      else
+          pip install gdal==1.10.0 &&
+          pip install -e $LARGE_IMAGE_PATH[memcached,openslide,mapnik] ;
+      fi
 
     - cd $GIRDER_PATH
     - pip install -U --upgrade-strategy eager -r $SLICER_CLI_WEB_PATH/requirements.txt
