@@ -200,7 +200,10 @@ install:
       fi
 
     - cd $GIRDER_PATH
+    - pip install -U 'celery>=4,<4.2'
+    - pip install --upgrade 'git+https://github.com/cdeepakroy/ctk-cli'
     - pip install -U --upgrade-strategy eager -r $SLICER_CLI_WEB_PATH/requirements.txt
+    - pip install -U --upgrade-strategy eager -e .[worker]
     - pip install -U --upgrade-strategy eager -r $HISTOGRAM_PATH/requirements.txt
 
     - girder-install plugin --symlink $OVERLAYS_PATH
@@ -214,7 +217,7 @@ script:
     - cd $GIRDER_BUILD_PATH
     - cmake -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DRUN_CORE_TESTS:BOOL="OFF" -DTEST_PLUGINS:STRING="overlays" $GIRDER_PATH
     - make -j 3
-    - JASMINE_TIMEOUT=15000 ctest -VV
+    - JASMINE_TIMEOUT=15000 ctest -VV -j 3
 
 after_success:
     - bash <(curl -s https://codecov.io/bash) -R $OVERLAYS_PATH -s $GIRDER_PATH
