@@ -111,7 +111,7 @@ before_install:
     - histogram_path=$girder_path/plugins/histogram
     - git clone https://github.com/cj-abcs/histogram.git $histogram_path && git -C $histogram_path checkout $HISTOGRAM_VERSION
 
-    colormaps_path=$girder_path/plugins/colormaps
+    - colormaps_path=$girder_path/plugins/colormaps
     - git clone https://github.com/cj-abcs/colormaps.git $colormaps_path && git -C $colormaps_path checkout $COLORMAPS_VERSION
 
     - export MONGO_VERSION=3.4.19
