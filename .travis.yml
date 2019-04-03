@@ -108,7 +108,7 @@ before_install:
     - slicer_cli_web_path=$girder_path/plugins/slicer_cli_web
     - git clone https://github.com/girder/slicer_cli_web.git $slicer_cli_web_path && git -C $slicer_cli_web_path checkout $SLICER_CLI_WEB_VERSION
 
-    histogram_path=$girder_path/plugins/histogram
+    - histogram_path=$girder_path/plugins/histogram
     - git clone https://github.com/cj-abcs/histogram.git $histogram_path && git -C $histogram_path checkout $HISTOGRAM_VERSION
 
     colormaps_path=$girder_path/plugins/colormaps
