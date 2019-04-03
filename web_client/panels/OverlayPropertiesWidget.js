@@ -45,7 +45,7 @@ var OverlayPropertiesWidget = Panel.extend({
         },
         'input #h-overlay-opacity': function (e) {
             var opacity = this.$('#h-overlay-opacity').val();
-            var text = `Overlay opacity ${(opacity * 100).toFixed()}%`;
+            var text = `Opacity ${(opacity * 100).toFixed()}%`;
             this.$('#h-overlay-opacity-label').text(text);
             this.overlay.set('opacity', opacity).save();
         },
