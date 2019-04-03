@@ -195,15 +195,14 @@ var OverlaySelector = Panel.extend({
         const id = $(evt.currentTarget).parents('.h-overlay').data('id');
         const model = this.collection.get(id);
 
-        // TODO: test
         var overlayItem = new ItemModel();
         overlayItem.set({_id: model.get('overlayItemId')}).fetch().then((overlayItem) => {
             var folder = new FolderModel();
-            return folder.set({_id: overlayItem.get('folderId')}).fetch();
+            return folder.set({_id: overlayItem.folderId}).fetch();
         }).then((folder) => {
             var dialog = showSaveOverlayDialog({
                 overlay: model,
-                overlayRoot: folder,
+                overlayRoot: new FolderModel(folder), // oof
                 overlayItem: overlayItem
             }, {title: 'Edit overlay'});
             this.listenToOnce(dialog, 'g:submit', () => model.save());
