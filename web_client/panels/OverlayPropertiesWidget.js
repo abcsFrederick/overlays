@@ -92,7 +92,7 @@ var OverlayPropertiesWidget = Panel.extend({
                     'label': model.get('label'),
                     'bitmask': model.get('bitmask')
                 });
-                this._histogramView.getHistogram();
+                this._histogramView._getHistogram();
                 this._histogramView.render();
             }
         );
@@ -165,7 +165,7 @@ var OverlayPropertiesWidget = Panel.extend({
 
         this._renderHistogram();
         // TODO: move me
-        ItemModel({
+        new ItemModel({
             _id: this.overlay.get('overlayItemId')
         }).fetch().done((overlayItem) => {
             this._histogramView.model.set({
@@ -173,7 +173,7 @@ var OverlayPropertiesWidget = Panel.extend({
                 fileId: overlayItem.largeImage.originalId,
                 loading: true
             });
-            this._histogramView.getHistogram();
+            this._histogramView._getHistogram();
             return this;
         });
         return this;

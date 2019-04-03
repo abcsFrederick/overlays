@@ -19,7 +19,7 @@ block content
         input#h-overlay-bitmask-label(type='checkbox', checked=bitmask)
         | Bitmask
   .form-group
-    label#h-overlay-opacity-label(for='h-overlay-opacity') = `Opacity ${(opacity * 100).toFixed()}%`
+    label#h-overlay-opacity-label(for='h-overlay-opacity')= `Opacity ${(opacity * 100).toFixed()}%`
     input#h-overlay-opacity(
         type="range", min="0", max="1", step="0.01", value=opacity)
   #h-overlay-offset-group.form-group
