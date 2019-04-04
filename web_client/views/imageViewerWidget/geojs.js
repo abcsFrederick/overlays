@@ -1,5 +1,7 @@
 import _ from 'underscore';
 
+import { apiRoot } from 'girder/rest';
+
 import GeojsImageViewerWidget from 'girder_plugins/large_image/views/imageViewerWidget/geojs';
 
 var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
@@ -17,6 +19,15 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
         }
 
         return result;
+    },
+
+    _getTileUrl: function (level, x, y, query, itemId) {
+        itemId = itemId || this.itemId;
+        var url = apiRoot + '/item/' + itemId + '/tiles/zxy/' + level + '/' + x + '/' + y;
+        if (query) {
+            url += '?' + $.param(query);
+        }
+        return url;
     },
 
     _setOverlayVisibility: function (index, visible, exclude) {

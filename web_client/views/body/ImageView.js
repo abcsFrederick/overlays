@@ -253,6 +253,29 @@ var OverlayImageView = ImageView.extend({
         }
     },
 
+    toggleOverlay(overlay) {
+        if (!this.viewerWidget) {
+            return;
+        }
+
+        if (overlay.get('displayed')) {
+            /*
+            overlay.set('loading', true);
+            overlay.fetch().then(() => {
+                this.viewerWidget.drawOverlay(overlay);
+                return null;
+            }).always(() => {
+                overlay.unset('loading');
+            });
+             */
+            overlay.set('loading', true);
+            this.viewerWidget.drawOverlay(overlay);
+            overlay.unset('loading');
+        } else {
+            this.viewerWidget.removeOverlay(overlay);
+        }
+    },
+
     _editOverlay(model) {
         this.activeOverlay = model;
         this._removeOverlayPropertiesWidget();
