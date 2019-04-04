@@ -276,6 +276,15 @@ var OverlayImageView = ImageView.extend({
         }
     },
 
+    _redrawOverlay(overlay) {
+        if (!this.viewerWidget || !overlay.get('displayed')) {
+            // We may need a way to queue overlay draws while viewer
+            // initializes, but for now ignore them.
+            return;
+        }
+        this.viewerWidget.drawOverlay(overlay);
+    },
+
     _editOverlay(model) {
         this.activeOverlay = model;
         this._removeOverlayPropertiesWidget();
