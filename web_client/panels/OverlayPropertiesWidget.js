@@ -169,8 +169,8 @@ var OverlayPropertiesWidget = Panel.extend({
             _id: this.overlay.get('overlayItemId')
         }).fetch().done((overlayItem) => {
             this._histogramView.model.set({
-                _id: overlayItem._id,
-                fileId: overlayItem.largeImage.originalId,
+                itemId: overlayItem._id,
+                // fileId: overlayItem.largeImage.originalId || overlayItem.largeImage.fileId,
                 loading: true
             });
             this._histogramView._getHistogram();
