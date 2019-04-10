@@ -7,11 +7,11 @@ import UploadWidget from 'girder/views/widgets/UploadWidget';
 import { handleClose } from 'girder/dialog';
 
 import FileModel from 'girder/models/FileModel';
-import ItemModel from 'girder/models/ItemModel';
 
 import Panel from 'girder_plugins/slicer_cli_web/views/Panel';
 
 import HistogramModel from 'girder_plugins/histogram/models/HistogramModel';
+import HistogramCollection from 'girder_plugins/histogram/collections/HistogramCollection';
 import HistogramWidget from 'girder_plugins/histogram/views/widgets/histogramWidget';
 
 import ColormapCollection from 'girder_plugins/colormaps/collections/ColormapCollection';
@@ -86,49 +86,24 @@ var OverlayPropertiesWidget = Panel.extend({
         );
         this.listenTo(
             this.overlay,
+            'change:overlayItemId',
+            this._getOrCreateHistogram
+        );
+        this.listenTo(
+            this.overlay,
             'change:label change:bitmask',
             (model) => {
                 this._histogramView.model.set({
-                    'label': model.get('label'),
-                    'bitmask': model.get('bitmask')
+                    label: model.get('label'),
+                    bitmask: model.get('bitmask')
                 });
                 this._histogramView._getHistogram();
                 this._histogramView.render();
             }
         );
-        this.listenTo(
-            this,
-            'h:active-overlay-value',
-            (evt) => {
-                if (!this._histogramView || !this._histogramView.colormap ||
-                    !this._histogramView.model.get('bitmask')) {
-                    return;
-                }
+        this.listenTo(this, 'h:active-overlay-value', this._onActiveOverlay);
 
-                var labels = this._histogramView.colormap.get('labels');
-                if (!labels) {
-                    return;
-                }
-
-                var colormap = this._histogramView.colormap.get('colormap');
-
-                this.trigger(
-                    'h:overlayLabels',
-                    {
-                        labels: _.map(
-                            evt.values,
-                            (value) => {
-                                var label = { text: labels[value] };
-                                if (colormap) {
-                                    label.color = colormap[value];
-                                }
-                                return label;
-                            }
-                        )
-                    }
-                );
-            }
-        );
+        this._getOrCreateHistogram(this.overlay);
     },
 
     render() {
@@ -164,19 +139,30 @@ var OverlayPropertiesWidget = Panel.extend({
         });
 
         this._renderHistogram();
-        // TODO: move me
-        new ItemModel({
-            _id: this.overlay.get('overlayItemId')
-        }).fetch().done((overlayItem) => {
-            this._histogramView.model.set({
-                itemId: overlayItem._id,
-                // fileId: overlayItem.largeImage.originalId || overlayItem.largeImage.fileId,
-                loading: true
-            });
-            this._histogramView._getHistogram();
-            return this;
-        });
+
         return this;
+    },
+
+    _getOrCreateHistogram(overlay) {
+        var attributes = {
+            itemId: overlay.get('overlayItemId'),
+            label: overlay.get('label'),
+            bitmask: overlay.get('bitmask'),
+            bins: 8 // FIXME: where to get bins?
+        };
+        var histogramCollection = new HistogramCollection();
+        histogramCollection.fetch(Object.assign({
+            limit: 2
+        }, attributes)).done(() => {
+            if (histogramCollection.models.length) {
+                attributes = histogramCollection.pop().attributes;
+                this._histogramView.model.set(attributes);
+            } else {
+                this._histogramView.model.set(attributes).save();
+            }
+        }).fail((error) => {
+            console.log(error);
+        });
     },
 
     _renderHistogram() {
@@ -191,11 +177,13 @@ var OverlayPropertiesWidget = Panel.extend({
                 label: this.overlay.get('label'),
                 bitmask: this.overlay.get('bitmask')
             }),
+            parentView: this
+            /*
             colormapId: this.overlay.get('colormapId'),
-            parentView: this,
             threshold: this.overlay.get('threshold'),
             exclude: this.overlay.get('exclude'),
             opacities: this.overlay.get('opacities')
+             */
         }).render();
 
         this.listenTo(this._histogramView, 'h:range', function (evt) {
@@ -213,15 +201,6 @@ var OverlayPropertiesWidget = Panel.extend({
 
     setViewer(viewer) {
         this.viewer = viewer;
-        /*
-        // make sure our listeners are in the correct order.
-        this.stopListening(events, 's:widgetDrawRegion', this._widgetDrawRegion);
-        if (viewer) {
-            this.listenTo(events, 's:widgetDrawRegion', this._widgetDrawRegion);
-            viewer.stopListening(events, 's:widgetDrawRegion', viewer.drawRegion);
-            viewer.listenTo(events, 's:widgetDrawRegion', viewer.drawRegion);
-        }
-         */
         return this;
     },
 
@@ -244,6 +223,32 @@ var OverlayPropertiesWidget = Panel.extend({
             index: overlay.get('index'),
             exclude: value
         });
+    },
+
+    _onActiveOverlay(evt) {
+        if (!this._histogramView || !this._histogramView.colormap ||
+            !this._histogramView.model.get('bitmask')) {
+            return;
+        }
+
+        var labels = this._histogramView.colormap.get('labels');
+        if (!labels) {
+            return;
+        }
+
+        var colormap = this._histogramView.colormap.get('colormap');
+
+        function labelValues(value) {
+            var label = { text: labels[value] };
+            if (colormap) {
+                label.color = colormap[value];
+            }
+            return label;
+        }
+
+        var overlayLabels = { labels: _.map(evt.values, labelValues) };
+
+        this.trigger('h:overlayLabels', overlayLabels);
     }
 });
 
