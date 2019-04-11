@@ -86,20 +86,8 @@ var OverlayPropertiesWidget = Panel.extend({
         );
         this.listenTo(
             this.overlay,
-            'change:overlayItemId',
+            'change:overlayItemId change:label change:bitmask',
             this._getOrCreateHistogram
-        );
-        this.listenTo(
-            this.overlay,
-            'change:label change:bitmask',
-            (model) => {
-                this._histogramView.model.set({
-                    label: model.get('label'),
-                    bitmask: model.get('bitmask')
-                });
-                this._histogramView._getHistogram();
-                this._histogramView.render();
-            }
         );
         this.listenTo(this, 'h:active-overlay-value', this._onActiveOverlay);
 
@@ -158,7 +146,9 @@ var OverlayPropertiesWidget = Panel.extend({
                 attributes = histogramCollection.pop().attributes;
                 this._histogramView.model.set(attributes);
             } else {
-                this._histogramView.model.set(attributes).save();
+                this._histogramView.model.set(Object.assign({
+                    _id: undefined
+                }, attributes)).save();
             }
         }).fail((error) => {
             console.log(error);
