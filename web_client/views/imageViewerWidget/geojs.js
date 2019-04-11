@@ -116,6 +116,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
                 var scale = Math.pow(2, level - maxZoom);
                 return {x: -offset.x * scale, y: -offset.y * scale};
             };
+            params.layer.renderer = 'canvas';
             var geojsLayer = this.viewer.createLayer('osm', params.layer);
             geojsLayer.name('overlay');
             geojsLayer.zIndex(this.featureLayer.zIndex());
