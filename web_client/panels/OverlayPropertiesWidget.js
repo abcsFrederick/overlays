@@ -148,7 +148,7 @@ var OverlayPropertiesWidget = Panel.extend({
             itemId: overlay.get('overlayItemId'),
             label: overlay.get('label'),
             bitmask: overlay.get('bitmask'),
-            bins: 8 // FIXME: where to get bins?
+            bins: overlay.get('bitmask') ? 8 : 256 // FIXME: where to get bins?
         };
         var histogramCollection = new HistogramCollection();
         histogramCollection.fetch(Object.assign({
