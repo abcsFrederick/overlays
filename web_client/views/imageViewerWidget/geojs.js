@@ -110,7 +110,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             params.layer.url = this._getTileUrl('{z}', '{x}', '{y}', query, overlay.get('overlayItemId'));
 
             params.layer.visible = overlay.get('displayed') && !(overlay.get('exclude') && _.contains(overlay.get('exclude'), query.bitmaskChannel));
-            var maxZoom = this.viewer.zoomRange().max;
+            var maxZoom = this.viewer.zoomRange().max - 1;
             var offset = overlay.get('offset');
             params.layer.tileOffset = (level) => {
                 var scale = Math.pow(2, level - maxZoom);
