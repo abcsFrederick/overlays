@@ -170,8 +170,8 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
         this._overlays[index].layer[layer].draw();
     },
 
-    setOverlayVisibility: function (index, visible) {
-        var updatedLayers = this._setOverlayVisibility(index, visible);
+    setOverlayVisibility: function (index, visible, exclude) {
+        var updatedLayers = this._setOverlayVisibility(index, visible, exclude);
         this.redrawOverlay(index, updatedLayers);
     },
 
