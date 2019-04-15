@@ -185,7 +185,9 @@ var OverlayPropertiesWidget = Panel.extend({
         this.listenTo(this._histogramView, 'h:excludeBins', function (evt) {
             this.trigger('h:overlayExcludeBins', {
                 index: this.overlay.get('index'),
-                exclude: evt.value
+                exclude: _.map(evt.value, (v) => {
+                    return v + this.overlay.get('label');
+                })
             });
         });
     },

@@ -23,7 +23,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
 
     _getTileUrl: function (level, x, y, query, itemId) {
         itemId = itemId || this.itemId;
-        var url = apiRoot + '/item/' + itemId + '/tiles/zxy/' + level + '/' + x + '/' + y;
+        var url = apiRoot + '/item/' + itemId + '/tiles/extended/zxy/' + level + '/' + x + '/' + y;
         if (query) {
             url += '?' + $.param(query);
         }
@@ -36,6 +36,9 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
         }
         if (exclude === undefined || exclude === null) {
             exclude = this._overlays[index].overlay.get('exclude');
+            exclude = _.map(exclude, (v) => {
+                return v + this._overlays[index].overlay.get('label');
+            });
         }
         var updatedLayers = [];
         _.each(this._overlays[index].layers, (layer, bin) => {
@@ -65,7 +68,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             threshold = threshold || {min: 0, max: 8};
             var i = Math.max(overlay.get('label') ? 1 : 0, threshold.min);
             for (; i <= threshold.max; i++) {
-                query = { bitmaskChannel: i };
+                query = { bit: i };
                 if (colormapId) {
                     query['colormapId'] = colormapId;
                 }
@@ -109,7 +112,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             // params.layer.keepLower = false;
             params.layer.url = this._getTileUrl('{z}', '{x}', '{y}', query, overlay.get('overlayItemId'));
 
-            params.layer.visible = overlay.get('displayed') && !(overlay.get('exclude') && _.contains(overlay.get('exclude'), query.bitmaskChannel));
+            params.layer.visible = overlay.get('displayed') && !(overlay.get('exclude') && _.contains(overlay.get('exclude'), query.bit));
             var maxZoom = this.viewer.zoomRange().max - 1;
             var offset = overlay.get('offset');
             params.layer.tileOffset = (level) => {
@@ -120,7 +123,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             var geojsLayer = this.viewer.createLayer('osm', params.layer);
             geojsLayer.name('overlay');
             geojsLayer.zIndex(this.featureLayer.zIndex());
-            var bin = query.bitmaskChannel ? query.bitmaskChannel : 0;
+            var bin = query.bit ? query.bit : 0;
             geojsLayer.opacity(this._globalOverlaysOpacity * overlay.get('opacity') * (opacities[bin] === undefined ? 1 : opacities[bin]));
             this._overlays[index].layers[bin] = geojsLayer;
         });
