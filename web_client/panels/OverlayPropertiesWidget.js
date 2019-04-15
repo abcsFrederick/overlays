@@ -1,22 +1,12 @@
 import _ from 'underscore';
 
-import { restRequest } from 'girder/rest';
-import { getCurrentUser } from 'girder/auth';
-import FolderCollection from 'girder/collections/FolderCollection';
-import UploadWidget from 'girder/views/widgets/UploadWidget';
-import { handleClose } from 'girder/dialog';
-
-import FileModel from 'girder/models/FileModel';
-
 import Panel from 'girder_plugins/slicer_cli_web/views/Panel';
 
 import HistogramModel from 'girder_plugins/histogram/models/HistogramModel';
 import HistogramCollection from 'girder_plugins/histogram/collections/HistogramCollection';
 import HistogramWidget from 'girder_plugins/histogram/views/widgets/histogramWidget';
 
-import ColormapCollection from 'girder_plugins/colormaps/collections/ColormapCollection';
-import colormapSelectorWidget from 'girder_plugins/colormaps/templates/panels/colormapSelectorWidget.pug';
-import 'girder_plugins/colormaps/stylesheets/panels/colormapSelectorWidget.styl';
+import ColormapSelectorWidget from 'girder_plugins/colormaps/views/widgets/colormapSelectorWidget';
 
 import overlayPropertiesWidget from '../templates/panels/overlayPropertiesWidget.pug';
 import '../stylesheets/panels/overlayPropertiesWidget.styl';
@@ -235,101 +225,6 @@ var OverlayPropertiesWidget = Panel.extend({
         var overlayLabels = { labels: _.map(evt.values, labelValues) };
 
         this.trigger('h:overlayLabels', overlayLabels);
-    }
-});
-
-function uploadColormapWidget() {
-    const user = getCurrentUser();
-    if (!user) {
-        throw new Error('User must be logged in');
-    }
-    const userFolders = new FolderCollection();
-    userFolders.fetch({
-        parentId: user.id,
-        parentType: 'user',
-        name: 'Private',
-        limit: 1
-    }).then(() => {
-        if (userFolders.isEmpty()) {
-            throw new Error('Could not find the user\'s private folder');
-        }
-
-        new UploadWidget({
-            el: $('#g-dialog-container'),
-            title: 'Upload Colormap',
-            parent: userFolders.at(0),
-            parentType: 'folder',
-            parentView: this
-        }).on('g:uploadFinished', function (e) {
-            _.each(e.files, (file) => {
-                restRequest({
-                    url: `colormap/file/${file.id}`,
-                    method: 'POST'
-                }).done((results) => {
-                    var model = new FileModel({_id: file.id});
-                    model.destroy(); // .fail();
-                    this.trigger('h:colormapsUpdated');
-                }).fail((error) => {
-                    console.log(error);
-                });
-            });
-            handleClose('upload');
-        }, this).render();
-
-        return this;
-    });
-}
-
-var ColormapSelectorWidget = Panel.extend({
-    events: {
-        'change select': '_select',
-        'click .h-remove-colormap': '_removeColormap',
-        'click .h-upload-colormap': uploadColormapWidget
-    },
-
-    initialize: function (settings) {
-        this.nullLabel = '(none)';
-        this.nullNameLabel = '(unnamed)';
-        this.collection = new ColormapCollection();
-        this.colormapId = settings.colormapId;
-        this.collection.on('g:changed', () => {
-            this.render();
-            this.trigger('g:changed');
-        });
-        this.listenTo(this.collection, 'update', this.render);
-        this.on('h:colormapsUpdated', () => {
-            this.collection.fetch({limit: 0, offset: 0});
-        });
-        this.collection.fetch({limit: 0});
-    },
-
-    render: function () {
-        this.$el.html(colormapSelectorWidget({
-            colormaps: this.collection.toArray(),
-            colormapId: this.colormapId,
-            nullLabel: this.nullLabel,
-            nullNameLabel: this.nullNameLabel
-        }));
-        return this;
-    },
-
-    _select: function () {
-        var selected;
-        this.colormapId = this.$(':selected').attr('value');
-        if (this.colormapId) {
-            selected = this.collection.get(this.colormapId);
-            this.$('.h-remove-colormap').removeClass('disabled');
-        } else {
-            this.$('.h-remove-colormap').addClass('disabled');
-        }
-        this.trigger('g:selected', selected);
-    },
-
-    _removeColormap: function () {
-        if (this.colormapId) {
-            this.collection.get(this.colormapId).destroy();
-            this.$('.h-colormap').val(this.nullLabel).trigger('change');
-        }
     }
 });
 
