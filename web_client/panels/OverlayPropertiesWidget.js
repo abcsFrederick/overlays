@@ -6,6 +6,7 @@ import HistogramModel from 'girder_plugins/histogram/models/HistogramModel';
 import HistogramCollection from 'girder_plugins/histogram/collections/HistogramCollection';
 import HistogramWidget from 'girder_plugins/histogram/views/widgets/histogramWidget';
 
+import ColormapModel from 'girder_plugins/colormaps/models/ColormapModel';
 import ColormapSelectorWidget from 'girder_plugins/colormaps/views/widgets/colormapSelectorWidget';
 
 import overlayPropertiesWidget from '../templates/panels/overlayPropertiesWidget.pug';
@@ -66,6 +67,9 @@ var OverlayPropertiesWidget = Panel.extend({
          */
         this.listenTo(this.overlay, 'change:opacity', this._setOverlayOpacity);
         this.listenTo(this.overlay, 'change:opacities', this._setOverlayOpacities);
+        this.listenTo(this.overlay, 'change:colormapId', (evt) => {
+            this._setColormapId(evt.get('colormapId'));
+        });
         this.listenTo(
             this.overlay,
             'change:threshold change:offset change:label change:invertLabel ' +
@@ -81,6 +85,7 @@ var OverlayPropertiesWidget = Panel.extend({
         this.listenTo(this, 'h:active-overlay-value', this._onActiveOverlay);
 
         this._getOrCreateHistogram(this.overlay);
+        this._setColormapId(this.overlay.get('colormapId'));
     },
 
     render() {
@@ -156,7 +161,8 @@ var OverlayPropertiesWidget = Panel.extend({
                 label: this.overlay.get('label'),
                 bitmask: this.overlay.get('bitmask')
             }),
-            parentView: this
+            parentView: this,
+            colormap: this.colormap ? this.colormap.get('colormap') : null
             /*
             colormapId: this.overlay.get('colormapId'),
             threshold: this.overlay.get('threshold'),
@@ -225,6 +231,24 @@ var OverlayPropertiesWidget = Panel.extend({
         var overlayLabels = { labels: _.map(evt.values, labelValues) };
 
         this.trigger('h:overlayLabels', overlayLabels);
+    },
+
+    _setColormapId(colormapId) {
+        if (colormapId) {
+            this.colormap = new ColormapModel({
+                _id: colormapId,
+                loading: true
+            });
+            this.colormap.fetch().done((value) => {
+                if (this._histogramView) {
+                    this._histogramView.setColormap(value['colormap']);
+                }
+                this.colormap.unset('loading');
+            });
+        } else {
+            this.colormap = null;
+            this._histogramView.setColormap();
+        }
     }
 });
 
