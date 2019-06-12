@@ -136,7 +136,7 @@ install:
     - python setup.py install
     - cd $histomicstk_path
     - pip install --upgrade 'git+https://github.com/cdeepakroy/ctk-cli'
-    - pip install -r requirements.txt
+    - pip install -r requirements_dev.txt
     # needs to be installed in dev mode for it to place binaries of cython/c extensions in place
     - pip install -e .
     - cd $girder_path
