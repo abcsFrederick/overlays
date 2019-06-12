@@ -247,7 +247,9 @@ var OverlayPropertiesWidget = Panel.extend({
             });
         } else {
             this.colormap = null;
-            this._histogramView.setColormap();
+            if (this._histogramView) {
+                this._histogramView.setColormap();
+            }
         }
     }
 });
