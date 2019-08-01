@@ -78,6 +78,7 @@ before_install:
     - HISTOGRAM_VERSION=master
     - COLORMAPS_VERSION=master
     - main_path=$PWD
+    - OVERLAYS_PATH=$TRAVIS_BUILD_DIR
     - build_path=$HOME/build
     - mkdir -p $build_path
 
@@ -162,5 +163,5 @@ after_failure:
     - cat /tmp/worker.out
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -R $main_path -s $girder_path
+    - bash <(curl -s https://codecov.io/bash) -R $OVERLAYS_PATH -s $girder_path
     # - travis-sphinx deploy

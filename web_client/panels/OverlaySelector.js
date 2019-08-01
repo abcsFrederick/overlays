@@ -52,7 +52,9 @@ var OverlaySelector = Panel.extend({
         this.listenTo(this.collection, 'change:name', this._onChangeOverlayName);
 
         this.listenTo(eventStream, 'g:event.job_status', _.debounce(this._onJobUpdate, 500));
-        this.listenTo(eventStream, 'g:eventStream.start', this._refreshOverlays);
+        // Since bitmask info is not saved in database, refresh will cause front in
+        // sync issue, especially histogram exclude and slider
+        // this.listenTo(eventStream, 'g:eventStream.start', this._refreshOverlays);
     },
 
     _onAddOverlay(overlay, collection, options) {

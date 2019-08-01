@@ -17,7 +17,8 @@ var OverlayModel = AccessControlledModel.extend({
         bitmask: false,
         overlayItemId: null,
         offset: {x: 0, y: 0},
-        colormapId: null
+        colormapId: null,
+        threshold: {max: 255, min: 0}
     },
 
     save: function () {

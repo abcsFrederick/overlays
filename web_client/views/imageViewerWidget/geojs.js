@@ -65,7 +65,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
         var threshold = overlay.get('threshold');
         var colormapId = overlay.get('colormapId');
         if (overlay.get('bitmask')) {
-            threshold = threshold || {min: 0, max: 8};
+            threshold = {min: 0, max: 8};
             var i = Math.max(overlay.get('label') ? 1 : 0, threshold.min);
             for (; i <= threshold.max; i++) {
                 query = { bit: i };
@@ -98,18 +98,18 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             }
             queries.push(query);
         }
-
         this._overlays[index] = {
             overlay: overlay,
             layers: {}
         };
 
         var opacities = overlay.get('opacities') || [];
-
+        // window.viewer = this;
         _.each(queries, (query) => {
+            // if(query.bit !== 8) return;
             var params = geo.util.pixelCoordinateParams(this.el, this.sizeX, this.sizeY, this.tileWidth, this.tileHeight);
             params.layer.useCredentials = true;
-            // params.layer.keepLower = false;
+            params.layer.keepLower = false;
             params.layer.url = this._getTileUrl('{z}', '{x}', '{y}', query, overlay.get('overlayItemId'));
 
             params.layer.visible = overlay.get('displayed') && !(overlay.get('exclude') && _.contains(overlay.get('exclude'), query.bit));
@@ -120,14 +120,16 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
                 return {x: -offset.x * scale, y: -offset.y * scale};
             };
             params.layer.renderer = 'canvas';
+            // console.log(this.viewer.children())
             var geojsLayer = this.viewer.createLayer('osm', params.layer);
+            // console.log(params.layer.maxLevel)
             geojsLayer.name('overlay');
             geojsLayer.zIndex(this.featureLayer.zIndex());
             var bin = query.bit ? query.bit : 0;
             geojsLayer.opacity(this._globalOverlaysOpacity * overlay.get('opacity') * (opacities[bin] === undefined ? 1 : opacities[bin]));
             this._overlays[index].layers[bin] = geojsLayer;
+            // window.viewer = this.viewer;
         });
-
         this._setOverlayVisibility(index, overlay.get('displayed'));
 
         return index;
@@ -151,6 +153,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     // updateOverlay: function(overlay) {
     drawOverlay: function (overlay) {
         var index = overlay.get('index');
+
         if (_.has(this._overlays, index)) {
             this._removeOverlay(index);
         }
@@ -165,7 +168,9 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
                 this._overlays[index].layers[layer].draw();
             });
         } else {
-            _.each(this._overlays[index].layers, (layer) => { layer.draw(); });
+            _.each(this._overlays[index].layers, (layer) => {
+                layer.draw();
+            });
         }
     },
 

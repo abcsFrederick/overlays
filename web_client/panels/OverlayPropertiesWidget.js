@@ -132,6 +132,7 @@ var OverlayPropertiesWidget = Panel.extend({
             bitmask: overlay.get('bitmask'),
             bins: overlay.get('bitmask') ? 8 : 256 // FIXME: where to get bins?
         };
+        // console.log(HistogramCollection);
         var histogramCollection = new HistogramCollection();
         histogramCollection.fetch(Object.assign({
             limit: 2
@@ -148,7 +149,7 @@ var OverlayPropertiesWidget = Panel.extend({
             console.log(error);
         });
     },
-
+    // ToDo threshold default value
     _renderHistogram() {
         if (this._histogramView) {
             this.stopListening(this._histogramView);
@@ -162,7 +163,8 @@ var OverlayPropertiesWidget = Panel.extend({
                 bitmask: this.overlay.get('bitmask')
             }),
             parentView: this,
-            colormap: this.colormap ? this.colormap.get('colormap') : null
+            colormap: this.colormap ? this.colormap.get('colormap') : null,
+            threshold: this.overlay.get('threshold')
             /*
             colormapId: this.overlay.get('colormapId'),
             threshold: this.overlay.get('threshold'),
@@ -179,6 +181,7 @@ var OverlayPropertiesWidget = Panel.extend({
         });
 
         this.listenTo(this._histogramView, 'h:excludeBins', function (evt) {
+            // debugger
             this.trigger('h:overlayExcludeBins', {
                 index: this.overlay.get('index'),
                 exclude: _.map(evt.value, (v) => {

@@ -1,5 +1,6 @@
 /* global geo */
 // import { wrap } from 'girder/utilities/PluginUtils';
+import _ from 'underscore';
 import events from 'girder/events';
 
 import ImageView from 'girder_plugins/HistomicsTK/views/body/ImageView';
@@ -282,7 +283,17 @@ var OverlayImageView = ImageView.extend({
             // initializes, but for now ignore them.
             return;
         }
+
         this.viewerWidget.drawOverlay(overlay);
+        if (overlay.get('bitmask')) {
+            // this.viewerWidget.drawOverlay(overlay);
+            let exclude = [];
+            let index = overlay.get('index');
+            _.each(this.$('.g-histogram-bar.exclude'), (elem) => {
+                exclude.push(parseInt($(elem).attr('i')) + 1);
+            });
+            this.viewerWidget.setOverlayVisibility(index, null, exclude);
+        }
     },
 
     _editOverlay(model) {
