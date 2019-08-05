@@ -91,7 +91,7 @@ before_install:
     - histomicstk_path=$girder_path/plugins/HistomicsTK
     - git clone https://github.com/DigitalSlideArchive/HistomicsTK.git $histomicstk_path && git -C $histomicstk_path checkout $HISTOMICSTK_VERSION
 
-    - CACHE="$HOME/.cache" OPENJPEG_VERSION=2.1.2 OPENJPEG_FILE=v2.1.2.tar.gz OPENJPEG_DIR=openjpeg-2.1.2 LIBTIFF_VERSION=4.0.8 OPENSLIDE_VERSION=3.4.1 source $histomicstk_path/.install-openslide.sh
+    - CACHE="$HOME/.cache" OPENJPEG_VERSION=2.1.2 OPENJPEG_FILE=v2.1.2.tar.gz OPENJPEG_DIR=openjpeg-2.1.2 LIBTIFF_VERSION=4.0.8 OPENSLIDE_VERSION=3.4.1 source $histomicstk_path/.install-openslide.sh >/dev/null 2>/dev/null &
 
     - girder_worker_path=$HOME/girder_worker
     - git clone https://github.com/girder/girder_worker.git $girder_worker_path && git -C $girder_worker_path checkout $GIRDER_WORKER_VERSION
@@ -126,7 +126,6 @@ before_install:
     - cmake --version
 
 install:
-    - pip install --progress-bar off
     - cd $girder_path
     - pip install -U --upgrade-strategy eager -r requirements-dev.txt
     - pip install -U --upgrade-strategy eager -e .[worker]
