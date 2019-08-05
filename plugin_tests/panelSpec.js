@@ -13,7 +13,7 @@ describe('Test overlay panels', function () {
     describe('Overlay selector panel', function () {
         var OriItemId, overlayItemId1, overlayItemId2, testEl,
             overlayModel1, overlayModel2, overlayCollection,
-            overlaySelector;
+            overlaySelector, girderItemModel;
 
         it('create the admin user', girderTest.createUser('admin', 'admin@email.com', 'Admin', 'Admin', 'testpassword'));
 
@@ -181,6 +181,42 @@ describe('Test overlay panels', function () {
             waitsFor(function () {
                 return $('.modal .modal-title').text() === 'Edit overlay';
             }, 'wait for edit dialog pops up.');
+        });
+        it('test delete overlay', function () {
+            runs(function () {
+                $('[data-id=' + overlayModel1.id + '] .h-delete-overlay').click();
+            });
+            girderTest.waitForDialog();
+            waitsFor(function () {
+                return $('.modal .modal-title').text() === 'Warning';
+            }, 'wait for Warning dialog pops up.');
+            runs(function () {
+                $('.h-submit').click();
+            });
+            waitsFor(function () {
+                return overlayCollection.length === 1;
+            }, 'wait for overlayCollection update.');
+        });
+        it('test create new overlay on parent Item', function () {
+            runs(function () {
+                girderItemModel = new girder.models.ItemModel();
+                girderItemModel.set('_id', OriItemId).fetch();
+            });
+            waitsFor(function () {
+                return girderItemModel.id;
+            }, 'test parent Item fetched created');
+            runs(function () {
+                overlaySelector.setItem(girderItemModel);
+            });
+            waitsFor(function () {
+                return overlaySelector.parentItem.id;
+            }, 'test parent Item id created');
+            runs(function () {
+                $('.h-create-overlay').click();
+            });
+            waitsFor(function () {
+                return $('.modal .modal-title').text() === 'Create overlay';
+            }, 'wait for Create overlay dialog pops up');
         });
     });
 
