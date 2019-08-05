@@ -86,7 +86,6 @@ before_install:
     - rm -fr $girder_path
     - git clone https://github.com/girder/girder.git $girder_path && git -C $girder_path checkout $GIRDER_VERSION
     - ln -sf $main_path $girder_path/plugins/
-    - ls -l $girder_path/plugins
 
     - histomicstk_path=$girder_path/plugins/HistomicsTK
     - git clone https://github.com/DigitalSlideArchive/HistomicsTK.git $histomicstk_path && git -C $histomicstk_path checkout $HISTOMICSTK_VERSION
@@ -117,7 +116,7 @@ before_install:
 
     - export MONGO_VERSION=3.4.19
     - export PY_COVG="ON"
-    - CACHE=$HOME/.cache source $girder_path/scripts/install_mongo.sh
+    - CACHE=$HOME/.cache source $girder_path/scripts/install_mongo.sh >/dev/null 2>/dev/null &
     - mkdir /tmp/db
     - mongod --dbpath=/tmp/db >/dev/null 2>/dev/null &
     - mongod --version
@@ -143,7 +142,7 @@ install:
     - cd $girder_path
     - pip install -U --upgrade-strategy eager -r $slicer_cli_web_path/requirements.txt
     - npm-install-retry
-    - BABEL_ENV=cover NYC_CWD="$main_path" girder-install web --plugins=jobs,worker,large_image,slicer_cli_web,HistomicsTK,histogram,colormaps,overlays --dev
+    - BABEL_ENV=cover NYC_CWD="$main_path" girder-install web --plugins=jobs,worker,large_image,slicer_cli_web,HistomicsTK,histogram,colormaps,overlays --dev >/dev/null 2>/dev/null &
     - pip install jupyter sphinx sphinx_rtd_theme nbsphinx travis-sphinx
     # - pip install numpy==1.13.1  # pin numpy for now
     - pip freeze  # report what we have installed
