@@ -37,7 +37,7 @@ describe('Test the hierarchy save overlay modal', function () {
             });
             girderTest.waitForLoad();
             runs(function () {
-                girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Seg.tiff');
+                girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Seg1.tiff');
             });
             girderTest.waitForLoad();
             runs(function () {

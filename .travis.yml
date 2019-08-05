@@ -126,6 +126,7 @@ before_install:
     - cmake --version
 
 install:
+    - pip install --progress-bar off
     - cd $girder_path
     - pip install -U --upgrade-strategy eager -r requirements-dev.txt
     - pip install -U --upgrade-strategy eager -e .[worker]
