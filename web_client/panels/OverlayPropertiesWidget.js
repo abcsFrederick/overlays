@@ -15,11 +15,11 @@ import '../stylesheets/panels/overlayPropertiesWidget.styl';
 var OverlayPropertiesWidget = Panel.extend({
     events: _.extend(Panel.prototype.events, {
         'input #h-overlay-label': function (e) {
-            if (this._histogramView.model.get('loading')) {
-                $(e.target).prop('checked', !$(e.target).prop('checked'));
-            } else {
-                this.overlay.set('label', $(e.target).is(':checked')).save();
-            }
+            // if (this._histogramView.model.get('loading')) {
+            //     $(e.target).prop('checked', !$(e.target).prop('checked'));
+            // } else {
+            this.overlay.set('label', $(e.target).is(':checked')).save();
+            // }
         },
         'input #h-overlay-invert-label': function (e) {
             this.overlay.set('invertLabel', $(e.target).is(':checked')).save();
@@ -28,11 +28,11 @@ var OverlayPropertiesWidget = Panel.extend({
             this.overlay.set('flattenLabel', $(e.target).is(':checked')).save();
         },
         'input #h-overlay-bitmask-label': function (e) {
-            if (this._histogramView.model.get('loading')) {
-                $(e.target).prop('checked', !$(e.target).prop('checked'));
-            } else {
-                this.overlay.set('bitmask', $(e.target).is(':checked')).save();
-            }
+            // if (this._histogramView.model.get('loading')) {
+            //     $(e.target).prop('checked', !$(e.target).prop('checked'));
+            // } else {
+            this.overlay.set('bitmask', $(e.target).is(':checked')).save();
+            // }
         },
         'input #h-overlay-opacity': function (e) {
             var opacity = this.$('#h-overlay-opacity').val();

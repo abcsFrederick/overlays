@@ -10,46 +10,46 @@ girderTest.importPlugin('overlays');
 girderTest.startApp();
 
 describe('Test overlay panels', function () {
+    var OriItemId, overlayItemId1, overlayItemId2;
+
+    it('create the admin user', girderTest.createUser('admin', 'admin@email.com', 'Admin', 'Admin', 'testpassword'));
+
+    it('go to collections page', function () {
+        runs(function () {
+            $("a.g-nav-link[g-target='collections']").click();
+        });
+
+        waitsFor(function () {
+            return $('.g-collection-create-button:visible').length > 0;
+        }, 'navigate to collections page');
+
+        runs(function () {
+            expect($('.g-collection-list-entry').length).toBe(0);
+        });
+    });
+    it('create collection', girderTest.createCollection('test', '', 'image'));
+
+    it('upload test file', function () {
+        girderTest.waitForLoad();
+        runs(function () {
+            $('.g-folder-list-link:first').click();
+        });
+        girderTest.waitForLoad();
+        runs(function () {
+            girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Seg1.tiff');
+            girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Seg2.tiff');
+            girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Ori.tiff');
+        });
+        girderTest.waitForLoad();
+        runs(function () {
+            overlayItemId1 = $('.g-item-list-entry:contains("Seg1.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
+            overlayItemId2 = $('.g-item-list-entry:contains("Seg2.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
+            OriItemId = $('.g-item-list-entry:contains("Ori.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
+        });
+    });
     describe('Overlay selector panel', function () {
-        var OriItemId, overlayItemId1, overlayItemId2, testEl,
-            overlayModel1, overlayModel2, overlayCollection,
+        var testEl, overlayModel1, overlayModel2, overlayCollection,
             overlaySelector, girderItemModel;
-
-        it('create the admin user', girderTest.createUser('admin', 'admin@email.com', 'Admin', 'Admin', 'testpassword'));
-
-        it('go to collections page', function () {
-            runs(function () {
-                $("a.g-nav-link[g-target='collections']").click();
-            });
-
-            waitsFor(function () {
-                return $('.g-collection-create-button:visible').length > 0;
-            }, 'navigate to collections page');
-
-            runs(function () {
-                expect($('.g-collection-list-entry').length).toBe(0);
-            });
-        });
-        it('create collection', girderTest.createCollection('test', '', 'image'));
-
-        it('upload test file', function () {
-            girderTest.waitForLoad();
-            runs(function () {
-                $('.g-folder-list-link:first').click();
-            });
-            girderTest.waitForLoad();
-            runs(function () {
-                girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Seg1.tiff');
-                girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Seg2.tiff');
-                girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Ori.tiff');
-            });
-            girderTest.waitForLoad();
-            runs(function () {
-                overlayItemId1 = $('.g-item-list-entry:contains("Seg1.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
-                overlayItemId2 = $('.g-item-list-entry:contains("Seg2.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
-                OriItemId = $('.g-item-list-entry:contains("Ori.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
-            });
-        });
         it('test create overlay collections', function () {
             runs(function () {
                 testEl = $('<div/>').appendTo('body');
@@ -139,6 +139,25 @@ describe('Test overlay panels', function () {
                 expect(overlayModel2.get('displayed')).toBe(true);
             });
         });
+        it('test editOverlay overlay', function () {
+            var ifcalls = false;
+            overlaySelector.on('h:editOverlay', function () {
+                ifcalls = !ifcalls;
+            });
+            runs(function () {
+                $('[data-id=' + overlayModel1.id + '] .h-overlay-name').click();
+            });
+            waitsFor(function () {
+                return ifcalls;
+            }, 'wait for event h:editOverlay called.');
+            ifcalls = false;
+            runs(function () {
+                $('[data-id=' + overlayModel1.id + '] .h-overlay-name').click();
+            });
+            waitsFor(function () {
+                return !ifcalls;
+            }, 'wait for event h:editOverlay will not be called.');
+        });
         it('test move up/down overlays', function () {
             // var overlayModel1Index;
             runs(function () {
@@ -181,10 +200,14 @@ describe('Test overlay panels', function () {
             waitsFor(function () {
                 return $('.modal .modal-title').text() === 'Edit overlay';
             }, 'wait for edit dialog pops up.');
+            runs(function () {
+                $('.h-cancel').click();
+            });
+            girderTest.waitForLoad();
         });
         it('test delete overlay', function () {
             runs(function () {
-                $('[data-id=' + overlayModel1.id + '] .h-delete-overlay').click();
+                $('[data-id=' + overlayModel2.id + '] .h-delete-overlay').click();
             });
             girderTest.waitForDialog();
             waitsFor(function () {
@@ -214,13 +237,118 @@ describe('Test overlay panels', function () {
             runs(function () {
                 $('.h-create-overlay').click();
             });
+            girderTest.waitForDialog();
             waitsFor(function () {
                 return $('.modal .modal-title').text() === 'Create overlay';
             }, 'wait for Create overlay dialog pops up');
+            runs(function () {
+                $('.h-cancel').click();
+            });
+            girderTest.waitForLoad();
         });
     });
 
-    describe('Overlay properities panel', function () {
-
+    describe('Overlay properties panel', function () {
+        var testPropertiesEl, overlayModel1, overlayProperties;
+        it('test create an overlay model', function () {
+            runs(function () {
+                testPropertiesEl = $('<div/>').appendTo('body');
+                overlayModel1 = new girder.plugins.overlays.models.OverlayModel();
+                overlayModel1.set({
+                    itemId: OriItemId,
+                    name: 'test1',
+                    description: 'test1',
+                    overlayItemId: overlayItemId1
+                }).save();
+            });
+            waitsFor(function () {
+                return overlayModel1.id;
+            }, 'test overlay1 created');
+            runs(function () {
+                overlayProperties = new girder.plugins.overlays.panels.OverlayPropertiesWidget({
+                    parentView: null,
+                    overlay: overlayModel1,
+                    el: testPropertiesEl
+                });
+                overlayProperties.setViewer('fake');
+                overlayProperties.render();
+            });
+            waitsFor(function () {
+                return overlayProperties.$('.s-panel-title-container').length === 1;
+            }, 'properties panel rendered.');
+        });
+        it('test label check', function () {
+            runs(function () {
+                $('#h-overlay-label').prop('checked', !$('#h-overlay-label').is(':checked')).trigger('input');
+            });
+            waitsFor(function () {
+                return overlayProperties.overlay.get('label') === $('#h-overlay-label').is(':checked');
+            }, 'properties overlay label is set.');
+            waitsFor(function () {
+                return overlayProperties.overlay.get('label') === overlayProperties._histogramView.model.get('label');
+            }, 'properties overlay label is set to histogram');
+        });
+        it('test invert label check', function () {
+            runs(function () {
+                $('#h-overlay-invert-label').prop('checked', !$('#h-overlay-invert-label').is(':checked')).trigger('input');
+            });
+            waitsFor(function () {
+                return overlayProperties.overlay.get('invertLabel') === $('#h-overlay-invert-label').is(':checked');
+            }, 'properties overlay invert label is set.');
+        });
+        it('test flatten label check', function () {
+            runs(function () {
+                $('#h-overlay-flatten-label').prop('checked', !$('#h-overlay-flatten-label').is(':checked')).trigger('input');
+            });
+            waitsFor(function () {
+                return overlayProperties.overlay.get('flattenLabel') === $('#h-overlay-flatten-label').is(':checked');
+            }, 'properties overlay flatten label is set.');
+        });
+        it('test bitmask check', function () {
+            var hRedrawEvent = false;
+            overlayProperties.on('h:redraw', function () {
+                hRedrawEvent = !hRedrawEvent;
+            });
+            runs(function () {
+                $('#h-overlay-bitmask-label').prop('checked', !$('#h-overlay-bitmask-label').is(':checked')).trigger('input');
+            });
+            waitsFor(function () {
+                return overlayProperties.overlay.get('bitmask') === $('#h-overlay-bitmask-label').is(':checked');
+            }, 'properties overlay bitmask is set.');
+            runs(function () {
+                expect(hRedrawEvent).toBe(true);
+            });
+        });
+        it('test overlay opacity', function () {
+            var hOverlayOpacityEvent = false;
+            overlayProperties.on('h:overlayOpacity', function () {
+                hOverlayOpacityEvent = !hOverlayOpacityEvent;
+            });
+            runs(function () {
+                $('#h-overlay-opacity').val(0.39).trigger('input');
+            });
+            waitsFor(function () {
+                return parseFloat(overlayProperties.overlay.get('opacity')) === 0.39;
+            }, 'properties overlay opacity is set.');
+            runs(function () {
+                expect(hOverlayOpacityEvent).toBe(true);
+            });
+        });
+        it('test overlay offset-x', function () {
+            runs(function () {
+                $('#h-overlay-offset-x').val(0.499).trigger('input');
+            });
+            waitsFor(function () {
+                return parseFloat(overlayProperties.overlay.get('offset').x) === 0.499;
+            }, 'properties overlay offset-x is set.');
+        });
+        it('test overlay offset-y', function () {
+            runs(function () {
+                $('#h-overlay-offset-y').val(0.599).trigger('input');
+            });
+            waitsFor(function () {
+                return parseFloat(overlayProperties.overlay.get('offset').y) === 0.599;
+            }, 'properties overlay offset-y is set.');
+        });
     });
 });
