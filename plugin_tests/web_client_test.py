@@ -109,7 +109,6 @@ class MockSlicerCLIWebResource(Resource):
 class WebClientTestCase(web_client_test.WebClientTestCase):
 
     def setUp(self):
-        print os.environ['GIRDER_TEST_DATA_PREFIX']
         web_client_test.testServer.root.api.v1.mock_resource = MockSlicerCLIWebResource()
 
         super(WebClientTestCase, self).setUp()

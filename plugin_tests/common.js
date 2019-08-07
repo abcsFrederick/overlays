@@ -1,6 +1,6 @@
 (function (global) {
     var app;
-    var currentImageId;
+    // var currentImageId;
 
     function startApp() {
         $('body').css('overflow', 'hidden');
@@ -69,7 +69,7 @@
         }, 'image to load');
         runs(function () {
             expect(girder.plugins.HistomicsTK.router.getQuery('image')).toBe(imageId);
-            currentImageId = imageId;
+            // currentImageId = imageId;
             deferred.resolve(imageId);
         });
 
@@ -102,5 +102,4 @@
         // imageId: imageId,
         login: login
     };
-
 }(window));
