@@ -10,7 +10,7 @@ girderTest.importPlugin('overlays');
 girderTest.startApp();
 
 describe('Test overlay panels', function () {
-    var OriItemId, overlayItemId1, overlayItemId2;
+    var OriItemId, overlayItemId1, overlayItemId2, colorMapFileId;
 
     it('create the admin user', girderTest.createUser('admin', 'admin@email.com', 'Admin', 'Admin', 'testpassword'));
 
@@ -45,6 +45,17 @@ describe('Test overlay panels', function () {
             overlayItemId1 = $('.g-item-list-entry:contains("Seg1.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
             overlayItemId2 = $('.g-item-list-entry:contains("Seg2.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
             OriItemId = $('.g-item-list-entry:contains("Ori.tiff") .large_image_thumbnail img').prop('src').match(/\/item\/([^/]*)/)[1];
+        });
+        runs(function () {
+            girderTest.binaryUpload('plugins/overlays/plugin_tests/test_files/Rainbow.json');
+        });
+        girderTest.waitForLoad();
+        runs(function () {
+            $('.g-item-list-entry:contains("Rainbow.json") .g-item-list-link').click();
+        });
+        girderTest.waitForLoad();
+        runs(function () {
+            colorMapFileId = $('.g-file-list-link').prop('href').match(/\/file\/([^/]*)/)[1];
         });
     });
     describe('Overlay selector panel', function () {
@@ -349,6 +360,30 @@ describe('Test overlay panels', function () {
             waitsFor(function () {
                 return parseFloat(overlayProperties.overlay.get('offset').y) === 0.599;
             }, 'properties overlay offset-y is set.');
+        });
+        it('test overlay colormap set', function () {
+            var xhr, colorMapId;
+            runs(function () {
+                xhr = girder.rest.restRequest({
+                    url: 'colormap/file/' + colorMapFileId,
+                    method: 'POST'
+                }).done(function () {
+                    colorMapId = xhr.responseJSON._id;
+                });
+            });
+            waitsFor(function () {
+                return colorMapId !== undefined;
+            }, 'colormap is successfully register');
+            runs(function () {
+                overlayProperties.overlay.set('colormapId', colorMapId).save();
+            });
+            waitsFor(function () {
+                return overlayProperties._histogramView.colormap !== null;
+            }, 'colormap is successfully register to histogram');
+            runs(function () {
+                expect(overlayProperties._histogramView.colormap[0][0]).toBe(255);
+                expect(overlayProperties._histogramView.colormap[33][1]).toBe(97);
+            });
         });
     });
 });

@@ -96,7 +96,7 @@ var OverlayImageView = ImageView.extend({
 
         return result;
     },
-     */
+    */
 
     render() {
         // Ensure annotations are removed from the popover widget on rerender.
