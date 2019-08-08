@@ -9,11 +9,11 @@ girderTest.importPlugin('colormaps');
 girderTest.importPlugin('HistomicsTK');
 girderTest.importPlugin('overlays');
 
-var app;
+// var app;
 girderTest.addScript('/plugins/overlays/plugin_tests/common.js');
 
 girderTest.promise.done(function () {
-    app = overlaysTest.startApp();
+    overlaysTest.startApp();
 });
 
 describe('overlays tests', function () {
