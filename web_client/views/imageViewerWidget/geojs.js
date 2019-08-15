@@ -4,6 +4,8 @@ import { apiRoot } from 'girder/rest';
 
 import GeojsImageViewerWidget from 'girder_plugins/large_image/views/imageViewerWidget/geojs';
 
+import OsmLayerEx from '../extension/osmLayerEx.js';
+
 var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     initialize: function (settings) {
         this._globalOverlaysOpacity = settings.globalOverlaysOpacity || 1.0;
@@ -13,11 +15,13 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     },
 
     render: function () {
+        var geo = window.geo;
         var result = GeojsImageViewerWidget.prototype.render.call(this, arguments);
+        // eslint-disable-next-line
+        new OsmLayerEx({geo: geo, parentView: this});
         if (window.geo && this.tileWidth && this.tileHeight && !this.deleted && !this.viewer) {
             this.setGlobalOverlayOpacity(this._globalOverlaysOpacity);
         }
-
         return result;
     },
 
@@ -120,15 +124,21 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
                 return {x: -offset.x * scale, y: -offset.y * scale};
             };
             params.layer.renderer = 'canvas';
-            // console.log(this.viewer.children())
-            var geojsLayer = this.viewer.createLayer('osm', params.layer);
-            // console.log(params.layer.maxLevel)
+            var geojsLayer = this.viewer.createLayer('osmEx', params.layer);
             geojsLayer.name('overlay');
             geojsLayer.zIndex(this.featureLayer.zIndex());
             var bin = query.bit ? query.bit : 0;
             geojsLayer.opacity(this._globalOverlaysOpacity * overlay.get('opacity') * (opacities[bin] === undefined ? 1 : opacities[bin]));
             this._overlays[index].layers[bin] = geojsLayer;
             // window.viewer = this.viewer;
+            // console.log(geojsLayer.tileAtPoint({x: 4000, y: 4250}, 6));
+            // let indextest = geojsLayer.tileAtPoint({x: 4000, y: 4250}, 6);
+            // indextest = {x: indextest.x, y: -(indextest.y + 1), level: 6}
+            // console.log(geojsLayer._getTile(indextest));
+            // geojsLayer.drawTile(geojsLayer._getTile(indextest));
+            // let data = geojsLayer.features()[0].data();
+            // window.data = data
+            // console.log(geojsLayer.features()[0].data())
         });
         this._setOverlayVisibility(index, overlay.get('displayed'));
 
@@ -153,7 +163,6 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     // updateOverlay: function(overlay) {
     drawOverlay: function (overlay) {
         var index = overlay.get('index');
-
         if (_.has(this._overlays, index)) {
             this._removeOverlay(index);
         }

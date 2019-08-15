@@ -39,65 +39,6 @@ var OverlayImageView = ImageView.extend({
         return result;
     },
 
-    /*
-    render() {
-        var result = ImageView.prototype.render.apply(this, arguments);
-
-        this._removeOverlayPropertiesWidget();
-
-        if (this.model.id) {
-            if (this.viewerWidget) {
-                this.viewerWidget.destroy();
-            }
-            this.viewerWidget = new GeojsViewer({
-                parentView: this,
-                el: this.$('.h-image-view-container'),
-                itemId: this.model.id,
-                hoverEvents: true,
-                // it is very confusing if this value is smaller than the
-                // AnnotationSelector MAX_ELEMENTS_LIST_LENGTH
-                highlightFeatureSizeLimit: 5000,
-                scale: {position: {bottom: 20, right: 10}}
-            });
-            this.viewerWidget.on('g:imageRendered', () => {
-                if (this.viewer) {
-                    this.$('#h-overlay-selector-container').removeClass('hidden');
-                    this.overlaySelector
-                        .setViewer(this.viewerWidget)
-                        .setElement('.h-overlay-selector').render();
-
-                    this.overlaySelector.collection.each((model) => {
-                        if (model.get('displayed')) {
-                            this.viewerWidget.drawOverlay(model);
-                        }
-                    });
-
-                    if (this.overlayPropertiesWidget) {
-                        this.$('.h-overlay-properties-widget').removeClass('hidden');
-                        this.overlayPropertiesWidget
-                            .setViewer(this.viewerWidget)
-                            .setElement('.h-overlay-properties-widget').render();
-                    }
-                }
-            });
-            this.overlaySelector.setItem(this.model);
-
-            this.overlaySelector
-                .setViewer(null)
-                .setElement('.h-overlay-selector').render();
-
-            if (this.overlayPropertiesWidget) {
-                this.$('.h-overlay-properties-widget').removeClass('hidden');
-                this.overlayPropertiesWidget
-                    .setViewer(null)
-                    .setElement('.h-overlay-properties-widget').render();
-            }
-        }
-
-        return result;
-    },
-    */
-
     render() {
         // Ensure annotations are removed from the popover widget on rerender.
         // This can happen when opening a new image while an annotation is

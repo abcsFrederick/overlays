@@ -296,8 +296,8 @@ describe('Test overlay panels', function () {
                 return overlayProperties.overlay.get('label') === $('#h-overlay-label').is(':checked');
             }, 'properties overlay label is set.');
             waitsFor(function () {
-                console.log(overlayProperties.overlay.get('label'));
-                console.log(overlayProperties._histogramView.model.get('label'));
+                // console.log(overlayProperties.overlay.get('label'));
+                // console.log(overlayProperties._histogramView.model.get('label'));
                 return overlayProperties.overlay.get('label') === overlayProperties._histogramView.model.get('label');
             }, 'properties overlay label is set to histogram');
         });
@@ -380,7 +380,7 @@ describe('Test overlay panels', function () {
                 overlayProperties.overlay.set('colormapId', colorMapId).save();
             });
             waitsFor(function () {
-                console.log(JSON.stringify(overlayProperties._histogramView.colormap));
+                // console.log(JSON.stringify(overlayProperties._histogramView.colormap));
                 return overlayProperties._histogramView.colormap !== null;
             }, 'colormap is successfully register to histogram');
             runs(function () {

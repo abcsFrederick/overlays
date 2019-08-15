@@ -29,5 +29,5 @@ add_web_client_test(
 )
 
 add_eslint_test(
-  js_static_analysis_overlays_tests "${PROJECT_SOURCE_DIR}/plugins/overlays/plugin_tests"
+  js_static_analysis_overlays_tests "${PROJECT_SOURCE_DIR}/plugins/overlays"
 )
