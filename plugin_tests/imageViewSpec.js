@@ -25,5 +25,9 @@ describe('overlays tests', function () {
         it('open image', function () {
             overlaysTest.openImage('image');
         });
+
+        it('add an overlay image', function () {
+            overlaysTest.addOverlay('overlay');
+        });
     });
 });

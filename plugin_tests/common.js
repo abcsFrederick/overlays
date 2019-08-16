@@ -75,6 +75,60 @@
 
         return deferred.promise();
     }
+    function addOverlay(name) {
+        var overlayImageId;
+        var deferred = $.Deferred();
+        runs(function () {
+            $('.h-create-overlay').click();
+        });
+
+        girderTest.waitForDialog();
+
+        runs(function () {
+            $('#h-overlay-select').click();
+            expect($('#h-overlay-select').is('[disabled=disabled]')).toBe(true);
+            $('#g-root-selector').val(
+                girder.auth.getCurrentUser().id
+            ).trigger('change');
+        });
+
+        waitsFor(function () {
+            return $('#g-dialog-container .g-folder-list-link').length > 0;
+        }, 'Hierarchy widget to render');
+
+        runs(function () {
+            $('.g-folder-list-link:contains("Public")').click();
+        });
+
+        waitsFor(function () {
+            return $('.g-item-list-link').length > 0;
+        }, 'item list to load');
+
+        runs(function () {
+            var $item = $('.g-item-list-link:contains("' + name + '")');
+            overlayImageId = $item.next().attr('href').match(/\/item\/([a-f0-9]+)\/download/)[1];
+            expect($item.length).toBe(1);
+            $item.click();
+        });
+
+        waitsFor(function () {
+            return $('#h-overlay-item').val();
+        }, 'selection to be set');
+
+        girderTest.waitForDialog();
+        runs(function () {
+            $('.h-submit').click();
+        });
+        // girderTest.waitForLoad();
+        waitsFor(function () {
+            return $('.geojs-layer.active#overlay').length > 0;
+        }, 'overlay to load');
+        runs(function () {
+            // expect(girder.plugins.HistomicsTK.router.getQuery('image')).toBe(imageId);
+            // currentImageId = imageId;
+            deferred.resolve(overlayImageId);
+        });
+    }
     function login(user, password) {
         girderTest.waitForLoad();
         runs(function () {
@@ -100,6 +154,7 @@
         openImage: openImage,
         // geojsMap: geojsMap,
         // imageId: imageId,
+        addOverlay: addOverlay,
         login: login
     };
 }(window));

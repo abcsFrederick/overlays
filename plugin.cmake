@@ -6,6 +6,9 @@ add_python_style_test(
 )
 add_python_test(overlays
   PLUGIN overlays
+  BIND_SERVER EXTERNAL_DATA
+  "plugins/overlays/image.tiff"
+  "plugins/overlays/overlay.tiff"
 )
 add_web_client_test(
   panel_test
@@ -25,7 +28,6 @@ add_web_client_test(
   PLUGIN overlays
   TEST_MODULE "plugin_tests.web_client_test"
   TEST_PYTHONPATH "${CMAKE_CURRENT_LIST_DIR}"
-  EXTERNAL_DATA "plugins/overlays/Segmentation.tiff"
 )
 
 add_eslint_test(

@@ -8,10 +8,16 @@ from tests import web_client_test
 setUpModule = web_client_test.setUpModule
 tearDownModule = web_client_test.tearDownModule
 
-TEST_FILE = os.path.join(
+TEST_FILE_IMAGE = os.path.join(
     os.environ['GIRDER_TEST_DATA_PREFIX'],
     'plugins', 'overlays',
-    'Segmentation.tiff'  # noqa
+    'image.tiff'  # noqa
+)
+
+TEST_FILE_OVERLAY = os.path.join(
+    os.environ['GIRDER_TEST_DATA_PREFIX'],
+    'plugins', 'overlays',
+    'overlay.tiff'  # noqa
 )
 
 
@@ -135,18 +141,26 @@ class WebClientTestCase(web_client_test.WebClientTestCase):
             user, 'user', filters={'name': 'Public'}
         ).next()
 
-        with open(TEST_FILE, 'rb') as f:
-            file = self.uploadFile('image', f.read(), user, publicFolder)
+        with open(TEST_FILE_IMAGE, 'rb') as f:
+            file_Image = self.uploadFile('image', f.read(), user, publicFolder)
 
-        item = self.model('item').load(file['itemId'], force=True)
+        item_Image = self.model('item').load(file_Image['itemId'], force=True)
         self.model('image_item', 'large_image').createImageItem(
-            item, file, user=user, createJob=False
+            item_Image, file_Image, user=user, createJob=False
         )
         self.model('image_item', 'large_image').copyItem(
-            item, user, name='copy')
+            item_Image, user, name='copy')
+
+        with open(TEST_FILE_OVERLAY, 'rb') as f:
+            file_Overlay = self.uploadFile('overlay', f.read(), user, publicFolder)
+
+        item_Overlay = self.model('item').load(file_Overlay['itemId'], force=True)
+        self.model('image_item', 'large_image').createImageItem(
+            item_Overlay, file_Overlay, user=user, createJob=False
+        )
 
         annotation = self.model('annotation', 'large_image').createAnnotation(
-            item, admin, {'name': 'admin annotation'})
+            item_Image, admin, {'name': 'admin annotation'})
         annotation = self.model('annotation', 'large_image').setAccessList(
             annotation, {}, force=True, save=False)
         annotation = self.model('annotation', 'large_image').setPublic(
