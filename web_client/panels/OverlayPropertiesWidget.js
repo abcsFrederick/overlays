@@ -74,7 +74,7 @@ var OverlayPropertiesWidget = Panel.extend({
             this.overlay,
             'change:threshold change:offset change:label change:invertLabel ' +
             'change:flattenLabel change:bitmask change:overlayItemId ' +
-            'change:colormapId',
+            'change:colormapId change:thresholdBit',
             (model) => { this.trigger('h:redraw', model); }
         );
         this.listenTo(
@@ -132,7 +132,6 @@ var OverlayPropertiesWidget = Panel.extend({
             bitmask: overlay.get('bitmask'),
             bins: overlay.get('bitmask') ? 8 : 256 // FIXME: where to get bins?
         };
-        // console.log(HistogramCollection);
         var histogramCollection = new HistogramCollection();
         histogramCollection.fetch(Object.assign({
             limit: 2
@@ -145,6 +144,7 @@ var OverlayPropertiesWidget = Panel.extend({
                     _id: undefined
                 }, attributes)).save();
             }
+            this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold')
         }).fail((error) => {
             console.log(error);
         });
@@ -164,16 +164,22 @@ var OverlayPropertiesWidget = Panel.extend({
             }),
             parentView: this,
             colormap: this.colormap ? this.colormap.get('colormap') : null,
-            threshold: this.overlay.get('threshold')
+            threshold: this.overlay.get('bitmask') ? this.overlay.get('thresholdBit') : this.overlay.get('threshold')
             /*
             colormapId: this.overlay.get('colormapId'),
             threshold: this.overlay.get('threshold'),
             opacities: this.overlay.get('opacities')
              */
         }).render();
-
+        this.listenTo(this._histogramView, 'h:histogramRender', function (evt) {
+            this.trigger('h:histogramRender');
+        });
         this.listenTo(this._histogramView, 'h:range', function (evt) {
-            this.overlay.set('threshold', evt.range).save();
+            if (!this.overlay.get('bitmask')) {
+                this.overlay.set('threshold', evt.range).save();
+            } else {
+                this.overlay.set('thresholdBit', evt.range).save();
+            }
         });
 
         this.listenTo(this._histogramView, 'h:opacities', function (evt) {

@@ -4,7 +4,7 @@ import { apiRoot } from 'girder/rest';
 
 import GeojsImageViewerWidget from 'girder_plugins/large_image/views/imageViewerWidget/geojs';
 
-import OsmLayerEx from '../extension/osmLayerEx.js';
+import registerLayer from '../extension/osmLayerEx.js';
 
 var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     initialize: function (settings) {
@@ -16,9 +16,9 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
 
     render: function () {
         var geo = window.geo;
+        registerLayer(geo);
         var result = GeojsImageViewerWidget.prototype.render.call(this, arguments);
         // eslint-disable-next-line
-        new OsmLayerEx({geo: geo, parentView: this});
         if (window.geo && this.tileWidth && this.tileHeight && !this.deleted && !this.viewer) {
             this.setGlobalOverlayOpacity(this._globalOverlaysOpacity);
         }
@@ -67,9 +67,10 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
         var queries = [];
         var query = {};
         var threshold = overlay.get('threshold');
+        var thresholdBit = overlay.get('thresholdBit');
         var colormapId = overlay.get('colormapId');
         if (overlay.get('bitmask')) {
-            threshold = {min: 0, max: 8};
+            threshold = thresholdBit;
             var i = Math.max(overlay.get('label') ? 1 : 0, threshold.min);
             for (; i <= threshold.max; i++) {
                 query = { bit: i };
@@ -106,9 +107,9 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             overlay: overlay,
             layers: {}
         };
-
+        console.log(threshold)
         var opacities = overlay.get('opacities') || [];
-        // window.viewer = this;
+        window.viewer = this.viewer;
         _.each(queries, (query) => {
             // if(query.bit !== 8) return;
             var params = geo.util.pixelCoordinateParams(this.el, this.sizeX, this.sizeY, this.tileWidth, this.tileHeight);
@@ -134,7 +135,7 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             // console.log(geojsLayer.tileAtPoint({x: 4000, y: 4250}, 6));
             // let indextest = geojsLayer.tileAtPoint({x: 4000, y: 4250}, 6);
             // indextest = {x: indextest.x, y: -(indextest.y + 1), level: 6}
-            // console.log(geojsLayer._getTile(indextest));
+            // window.test = geojsLayer._getTile(indextest);
             // geojsLayer.drawTile(geojsLayer._getTile(indextest));
             // let data = geojsLayer.features()[0].data();
             // window.data = data
@@ -166,6 +167,9 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
         if (_.has(this._overlays, index)) {
             this._removeOverlay(index);
         }
+        // Dirty way to ensure original underneath display
+        this.viewer.layers()[0].visible(false);
+        this.viewer.layers()[0].visible(true);
         index = this._addOverlay(overlay);
         this.redrawOverlay(index);
         return index;

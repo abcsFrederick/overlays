@@ -99,6 +99,7 @@ var OverlaySelector = Panel.extend({
         this.$('.s-panel-content').collapse({toggle: false});
         this.$('[data-toggle="tooltip"]').tooltip({container: 'body'});
         this._changeGlobalOpacity();
+        this.trigger('overlaySelectorFinish');
     },
 
     /**

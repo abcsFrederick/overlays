@@ -129,10 +129,12 @@ var OverlayImageView = ImageView.extend({
                         .setViewer(this.viewerWidget)
                         .setElement('.h-overlay-selector').render();
 
-                    this.overlaySelector.collection.each((model) => {
-                        if (model.get('displayed')) {
-                            this.viewerWidget.drawOverlay(model);
-                        }
+                    this.overlaySelector.on('overlaySelectorFinish',()=>{
+                        this.overlaySelector.collection.each((model) => {
+                            if (model.get('displayed')) {
+                                this.viewerWidget.drawOverlay(model);
+                            }
+                        });
                     });
 
                     if (this.overlayPropertiesWidget) {
@@ -226,8 +228,17 @@ var OverlayImageView = ImageView.extend({
         }
 
         this.viewerWidget.drawOverlay(overlay);
+
         if (overlay.get('bitmask')) {
-            // this.viewerWidget.drawOverlay(overlay);
+            this.listenTo(this.overlayPropertiesWidget, 'h:histogramRender', () => {
+                // console.log(this.overlayPropertiesWidget._histogramView.threshold);
+                let exclude = [];
+                let index = overlay.get('index');
+                _.each(this.$('.g-histogram-bar.exclude'), (elem) => {
+                    exclude.push(parseInt($(elem).attr('i')) + 1);
+                });
+                this.viewerWidget.setOverlayVisibility(index, null, exclude);
+            });
             let exclude = [];
             let index = overlay.get('index');
             _.each(this.$('.g-histogram-bar.exclude'), (elem) => {
