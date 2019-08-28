@@ -107,7 +107,6 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             overlay: overlay,
             layers: {}
         };
-        console.log(threshold)
         var opacities = overlay.get('opacities') || [];
         window.viewer = this.viewer;
         _.each(queries, (query) => {

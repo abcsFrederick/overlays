@@ -144,7 +144,7 @@ var OverlayPropertiesWidget = Panel.extend({
                     _id: undefined
                 }, attributes)).save();
             }
-            this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold')
+            this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold');
         }).fail((error) => {
             console.log(error);
         });

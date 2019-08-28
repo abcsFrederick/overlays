@@ -129,7 +129,7 @@ var OverlayImageView = ImageView.extend({
                         .setViewer(this.viewerWidget)
                         .setElement('.h-overlay-selector').render();
 
-                    this.overlaySelector.on('overlaySelectorFinish',()=>{
+                    this.overlaySelector.on('overlaySelectorFinish', () => {
                         this.overlaySelector.collection.each((model) => {
                             if (model.get('displayed')) {
                                 this.viewerWidget.drawOverlay(model);

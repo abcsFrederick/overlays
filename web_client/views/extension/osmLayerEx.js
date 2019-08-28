@@ -1,7 +1,4 @@
-import View from 'girder/views/View';
-
-function registerLayer (geo) {
-
+function registerLayer(geo) {
     var modulo = function (a, b) {
         return ((a % b) + b) % b;
     };
@@ -198,7 +195,5 @@ function registerLayer (geo) {
     geo.inherit(geo.osmLayerEx, geo.tileLayer);
 
     geo.registerLayer('osmEx', geo.osmLayerEx, [geo.quadFeature.capabilities.image]);
-
 }
-
 export default registerLayer;
