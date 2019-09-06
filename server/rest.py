@@ -29,6 +29,7 @@ from girder.api.rest import Resource, loadmodel, filtermodel
 from girder.constants import AccessType, SortDir
 from girder.exceptions import RestException
 from girder.models.item import Item
+from girder.models.user import User
 from .models.overlay import Overlay
 try:
     from girder.plugins.colormaps.models.colormap import Colormap
@@ -52,6 +53,10 @@ class OverlayResource(Resource):
         .responseClass('Overlay', array=True)
         .param('itemId', 'The ID of the parent item.',
                          required=False)
+        .param('creatorId', 'The ID of the creator.',
+                         required=False)
+        .param('name', 'The name of the overlay.',
+                         required=False)
         .pagingParams(None, defaultLimit=None)
         .errorResponse()
         .errorResponse('No matching overlays were found.', 404)
@@ -70,6 +75,11 @@ class OverlayResource(Resource):
         query = {}
         if 'itemId' in params:
             query['itemId'] = params['itemId']
+        if 'creatorId' in params:
+            user = User().load(params.get('creatorId'), force=True)
+            query['creatorId'] = user['_id']
+        if 'name' in params:
+            query['name'] = {'$regex': '(?i).*' + params['name'] + '.*'}
         return list(Overlay().filterResultsByPermission(
             cursor=Overlay().find(query, sort=sort),
             user=user,
