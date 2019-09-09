@@ -170,24 +170,12 @@ describe('Test overlay panels', function () {
             }, 'wait for event h:editOverlay will not be called.');
         });
         it('test move up/down overlays', function () {
-            // var overlayModel1Index;
             runs(function () {
                 overlaySelector.$('[data-id=' + overlayModel1.id + '] .h-move-overlay-down').click();
             });
             waitsFor(function () {
                 return overlayCollection.at(0).id === overlayModel2.id;
             }, 'wait for overlay1 moves down and collection sorted.');
-            // runs(function () {
-            //     console.log('overlay1 move down, 1 index ' + overlayModel1.get('index'));
-            //     console.log('overlay1 move down, 2 index ' + overlayModel2.get('index'));
-            //     overlayModel1Index = overlayModel1.get('index');
-            //     // overlaySelector.$('[data-id=' + overlayModel1.id + '] .h-move-overlay-down').click();
-            // });
-            // waitsFor(function () {
-            //     console.log('overlay1 move down again, 1 index ' + overlayModel1.get('index'));
-            //     console.log('overlay1 move down again, 2 index ' + overlayModel2.get('index'));
-            //     return overlayModel1.get('index') === 5;
-            // }, 'overlay1 stay the same.');
 
             runs(function () {
                 overlaySelector.$('[data-id=' + overlayModel1.id + '] .h-move-overlay-up').click();
@@ -195,13 +183,6 @@ describe('Test overlay panels', function () {
             waitsFor(function () {
                 return overlayCollection.at(0).id === overlayModel1.id;
             }, 'wait for overlay1 moves up and collection sorted.');
-            // runs(function () {
-            //     overlayModel1Index = overlayModel1.get('index');
-            //     overlaySelector.$('[data-id=' + overlayModel1.id + '] .h-move-overlay-up').click();
-            // });
-            // waitsFor(function () {
-            //     return overlayModel1.get('index') === overlayModel1Index;
-            // }, 'overlay1 stay the same.');
         });
         it('test edit overlay', function () {
             runs(function () {
@@ -296,8 +277,6 @@ describe('Test overlay panels', function () {
                 return overlayProperties.overlay.get('label') === $('#h-overlay-label').is(':checked');
             }, 'properties overlay label is set.');
             waitsFor(function () {
-                // console.log(overlayProperties.overlay.get('label'));
-                // console.log(overlayProperties._histogramView.model.get('label'));
                 return overlayProperties.overlay.get('label') === overlayProperties._histogramView.model.get('label');
             }, 'properties overlay label is set to histogram');
         });
@@ -380,7 +359,6 @@ describe('Test overlay panels', function () {
                 overlayProperties.overlay.set('colormapId', colorMapId).save();
             });
             waitsFor(function () {
-                // console.log(JSON.stringify(overlayProperties._histogramView.colormap));
                 return overlayProperties._histogramView.colormap !== null;
             }, 'colormap is successfully register to histogram');
             runs(function () {

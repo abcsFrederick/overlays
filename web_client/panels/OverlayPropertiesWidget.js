@@ -1,11 +1,11 @@
 import _ from 'underscore';
 
-import Panel from 'girder_plugins/slicer_cli_web/views/Panel';
+import { restRequest } from 'girder/rest';
 
+import Panel from 'girder_plugins/slicer_cli_web/views/Panel';
 import HistogramModel from 'girder_plugins/histogram/models/HistogramModel';
 import HistogramCollection from 'girder_plugins/histogram/collections/HistogramCollection';
 import HistogramWidget from 'girder_plugins/histogram/views/widgets/histogramWidget';
-
 import ColormapModel from 'girder_plugins/colormaps/models/ColormapModel';
 import ColormapSelectorWidget from 'girder_plugins/colormaps/views/widgets/colormapSelectorWidget';
 
@@ -126,27 +126,33 @@ var OverlayPropertiesWidget = Panel.extend({
     },
 
     _getOrCreateHistogram(overlay) {
-        var attributes = {
-            itemId: overlay.get('overlayItemId'),
-            label: overlay.get('label'),
-            bitmask: overlay.get('bitmask'),
-            bins: overlay.get('bitmask') ? 8 : 256 // FIXME: where to get bins?
-        };
-        var histogramCollection = new HistogramCollection();
-        histogramCollection.fetch(Object.assign({
-            limit: 2
-        }, attributes)).done(() => {
-            if (histogramCollection.models.length) {
-                attributes = histogramCollection.pop().attributes;
-                this._histogramView.model.set(attributes);
-            } else {
-                this._histogramView.model.set(Object.assign({
-                    _id: undefined
-                }, attributes)).save();
-            }
-            this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold');
-        }).fail((error) => {
-            console.log(error);
+        restRequest({
+            type: 'GET',
+            url: 'histogram/settings'
+        }).done((resp) => {
+            let bin = resp['histogram.default_bins'];
+            var attributes = {
+                itemId: overlay.get('overlayItemId'),
+                label: overlay.get('label'),
+                bitmask: overlay.get('bitmask'),
+                bins: overlay.get('bitmask') ? 8 : bin
+            };
+            var histogramCollection = new HistogramCollection();
+            histogramCollection.fetch(Object.assign({
+                limit: 2
+            }, attributes)).done(() => {
+                if (histogramCollection.models.length) {
+                    attributes = histogramCollection.pop().attributes;
+                    this._histogramView.model.set(attributes);
+                } else {
+                    this._histogramView.model.set(Object.assign({
+                        _id: undefined
+                    }, attributes)).save();
+                }
+                this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold');
+            }).fail((error) => {
+                console.log(error);
+            });
         });
     },
     // ToDo threshold default value
