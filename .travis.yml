@@ -72,12 +72,13 @@ before_install:
     - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "3" ]; then export PY3="true"; else export PY2="true"; fi
     - GIRDER_VERSION=2.x-maintenance
     - GIRDER_WORKER_VERSION=master
-    - LARGE_IMAGE_VERSION=master
+    - LARGE_IMAGE_VERSION=2.x-maintenance
     - SLICER_CLI_WEB_VERSION=master
     - HISTOMICSTK_VERSION=master
     - HISTOGRAM_VERSION=master
     - COLORMAPS_VERSION=master
     - main_path=$PWD
+    - OVERLAYS_PATH=$TRAVIS_BUILD_DIR
     - build_path=$HOME/build
     - mkdir -p $build_path
 
@@ -85,12 +86,11 @@ before_install:
     - rm -fr $girder_path
     - git clone https://github.com/girder/girder.git $girder_path && git -C $girder_path checkout $GIRDER_VERSION
     - ln -sf $main_path $girder_path/plugins/
-    - ls -l $girder_path/plugins
 
     - histomicstk_path=$girder_path/plugins/HistomicsTK
     - git clone https://github.com/DigitalSlideArchive/HistomicsTK.git $histomicstk_path && git -C $histomicstk_path checkout $HISTOMICSTK_VERSION
 
-    - CACHE="$HOME/.cache" OPENJPEG_VERSION=2.1.2 OPENJPEG_FILE=v2.1.2.tar.gz OPENJPEG_DIR=openjpeg-2.1.2 LIBTIFF_VERSION=4.0.8 OPENSLIDE_VERSION=3.4.1 source $histomicstk_path/.install-openslide.sh
+    - CACHE="$HOME/.cache" OPENJPEG_VERSION=2.1.2 OPENJPEG_FILE=v2.1.2.tar.gz OPENJPEG_DIR=openjpeg-2.1.2 LIBTIFF_VERSION=4.0.8 OPENSLIDE_VERSION=3.4.1 source $histomicstk_path/.install-openslide.sh >/dev/null 2>/dev/null &
 
     - girder_worker_path=$HOME/girder_worker
     - git clone https://github.com/girder/girder_worker.git $girder_worker_path && git -C $girder_worker_path checkout $GIRDER_WORKER_VERSION
@@ -116,7 +116,7 @@ before_install:
 
     - export MONGO_VERSION=3.4.19
     - export PY_COVG="ON"
-    - CACHE=$HOME/.cache source $girder_path/scripts/install_mongo.sh
+    - CACHE=$HOME/.cache source $girder_path/scripts/install_mongo.sh >/dev/null 2>/dev/null &
     - mkdir /tmp/db
     - mongod --dbpath=/tmp/db >/dev/null 2>/dev/null &
     - mongod --version
@@ -142,7 +142,7 @@ install:
     - cd $girder_path
     - pip install -U --upgrade-strategy eager -r $slicer_cli_web_path/requirements.txt
     - npm-install-retry
-    - BABEL_ENV=cover NYC_CWD="$main_path" girder-install web --plugins=jobs,worker,large_image,slicer_cli_web,HistomicsTK,histogram,colormaps,overlays --dev
+    - BABEL_ENV=cover NYC_CWD="$main_path" girder-install web --plugins=jobs,worker,large_image,slicer_cli_web,HistomicsTK,histogram,colormaps,overlays --dev > /dev/null 
     - pip install jupyter sphinx sphinx_rtd_theme nbsphinx travis-sphinx
     # - pip install numpy==1.13.1  # pin numpy for now
     - pip freeze  # report what we have installed
@@ -152,7 +152,7 @@ script:
     - python2 -m girder_worker >/tmp/worker.out 2>&1 &
     - cd $build_path
     - cmake -DPYTHON_COVERAGE:BOOL=${PY_COVG} -DPYTHON_EXECUTABLE:FILEPATH="`which python`" -DPYTHON_VERSION:STRING=${TRAVIS_PYTHON_VERSION} -DRUN_CORE_TESTS:BOOL="OFF" -DTEST_PLUGINS:STRING="overlays" $girder_path
-    - make -j 5
+    - make -j 5 > /dev/null 
     - JASMINE_TIMEOUT=15000 ctest -VV -j 3
     # - travis-sphinx build --source=$main_path/docs
 
@@ -162,5 +162,5 @@ after_failure:
     - cat /tmp/worker.out
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -R $main_path -s $girder_path
+    - bash <(curl -s https://codecov.io/bash) -R $OVERLAYS_PATH -s $girder_path
     # - travis-sphinx deploy

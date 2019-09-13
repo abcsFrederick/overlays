@@ -1,11 +1,11 @@
 import _ from 'underscore';
 
-import Panel from 'girder_plugins/slicer_cli_web/views/Panel';
+import { restRequest } from 'girder/rest';
 
+import Panel from 'girder_plugins/slicer_cli_web/views/Panel';
 import HistogramModel from 'girder_plugins/histogram/models/HistogramModel';
 import HistogramCollection from 'girder_plugins/histogram/collections/HistogramCollection';
 import HistogramWidget from 'girder_plugins/histogram/views/widgets/histogramWidget';
-
 import ColormapModel from 'girder_plugins/colormaps/models/ColormapModel';
 import ColormapSelectorWidget from 'girder_plugins/colormaps/views/widgets/colormapSelectorWidget';
 
@@ -15,11 +15,11 @@ import '../stylesheets/panels/overlayPropertiesWidget.styl';
 var OverlayPropertiesWidget = Panel.extend({
     events: _.extend(Panel.prototype.events, {
         'input #h-overlay-label': function (e) {
-            if (this._histogramView.model.get('loading')) {
-                $(e.target).prop('checked', !$(e.target).prop('checked'));
-            } else {
-                this.overlay.set('label', $(e.target).is(':checked')).save();
-            }
+            // if (this._histogramView.model.get('loading')) {
+            //     $(e.target).prop('checked', !$(e.target).prop('checked'));
+            // } else {
+            this.overlay.set('label', $(e.target).is(':checked')).save();
+            // }
         },
         'input #h-overlay-invert-label': function (e) {
             this.overlay.set('invertLabel', $(e.target).is(':checked')).save();
@@ -28,11 +28,11 @@ var OverlayPropertiesWidget = Panel.extend({
             this.overlay.set('flattenLabel', $(e.target).is(':checked')).save();
         },
         'input #h-overlay-bitmask-label': function (e) {
-            if (this._histogramView.model.get('loading')) {
-                $(e.target).prop('checked', !$(e.target).prop('checked'));
-            } else {
-                this.overlay.set('bitmask', $(e.target).is(':checked')).save();
-            }
+            // if (this._histogramView.model.get('loading')) {
+            //     $(e.target).prop('checked', !$(e.target).prop('checked'));
+            // } else {
+            this.overlay.set('bitmask', $(e.target).is(':checked')).save();
+            // }
         },
         'input #h-overlay-opacity': function (e) {
             var opacity = this.$('#h-overlay-opacity').val();
@@ -74,7 +74,7 @@ var OverlayPropertiesWidget = Panel.extend({
             this.overlay,
             'change:threshold change:offset change:label change:invertLabel ' +
             'change:flattenLabel change:bitmask change:overlayItemId ' +
-            'change:colormapId',
+            'change:colormapId change:thresholdBit',
             (model) => { this.trigger('h:redraw', model); }
         );
         this.listenTo(
@@ -126,29 +126,36 @@ var OverlayPropertiesWidget = Panel.extend({
     },
 
     _getOrCreateHistogram(overlay) {
-        var attributes = {
-            itemId: overlay.get('overlayItemId'),
-            label: overlay.get('label'),
-            bitmask: overlay.get('bitmask'),
-            bins: overlay.get('bitmask') ? 8 : 256 // FIXME: where to get bins?
-        };
-        var histogramCollection = new HistogramCollection();
-        histogramCollection.fetch(Object.assign({
-            limit: 2
-        }, attributes)).done(() => {
-            if (histogramCollection.models.length) {
-                attributes = histogramCollection.pop().attributes;
-                this._histogramView.model.set(attributes);
-            } else {
-                this._histogramView.model.set(Object.assign({
-                    _id: undefined
-                }, attributes)).save();
-            }
-        }).fail((error) => {
-            console.log(error);
+        restRequest({
+            type: 'GET',
+            url: 'histogram/settings'
+        }).done((resp) => {
+            let bin = resp['histogram.default_bins'];
+            var attributes = {
+                itemId: overlay.get('overlayItemId'),
+                label: overlay.get('label'),
+                bitmask: overlay.get('bitmask'),
+                bins: overlay.get('bitmask') ? 8 : bin
+            };
+            var histogramCollection = new HistogramCollection();
+            histogramCollection.fetch(Object.assign({
+                limit: 2
+            }, attributes)).done(() => {
+                if (histogramCollection.models.length) {
+                    attributes = histogramCollection.pop().attributes;
+                    this._histogramView.model.set(attributes);
+                } else {
+                    this._histogramView.model.set(Object.assign({
+                        _id: undefined
+                    }, attributes)).save();
+                }
+                this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold');
+            }).fail((error) => {
+                console.log(error);
+            });
         });
     },
-
+    // ToDo threshold default value
     _renderHistogram() {
         if (this._histogramView) {
             this.stopListening(this._histogramView);
@@ -162,16 +169,23 @@ var OverlayPropertiesWidget = Panel.extend({
                 bitmask: this.overlay.get('bitmask')
             }),
             parentView: this,
-            colormap: this.colormap ? this.colormap.get('colormap') : null
+            colormap: this.colormap ? this.colormap.get('colormap') : null,
+            threshold: this.overlay.get('bitmask') ? this.overlay.get('thresholdBit') : this.overlay.get('threshold')
             /*
             colormapId: this.overlay.get('colormapId'),
             threshold: this.overlay.get('threshold'),
             opacities: this.overlay.get('opacities')
              */
         }).render();
-
+        this.listenTo(this._histogramView, 'h:histogramRender', function (evt) {
+            this.trigger('h:histogramRender');
+        });
         this.listenTo(this._histogramView, 'h:range', function (evt) {
-            this.overlay.set('threshold', evt.range).save();
+            if (!this.overlay.get('bitmask')) {
+                this.overlay.set('threshold', evt.range).save();
+            } else {
+                this.overlay.set('thresholdBit', evt.range).save();
+            }
         });
 
         this.listenTo(this._histogramView, 'h:opacities', function (evt) {
@@ -179,6 +193,7 @@ var OverlayPropertiesWidget = Panel.extend({
         });
 
         this.listenTo(this._histogramView, 'h:excludeBins', function (evt) {
+            // debugger
             this.trigger('h:overlayExcludeBins', {
                 index: this.overlay.get('index'),
                 exclude: _.map(evt.value, (v) => {

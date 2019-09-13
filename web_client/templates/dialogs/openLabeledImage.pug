@@ -1,0 +1,20 @@
+.modal-dialog(role='document')
+  .modal-content.h-open-labeled-image-dialog
+    .modal-header
+      button.close(type='button', data-dismiss='modal', aria-label='Close')
+        span(aria-hidden='true') &times;
+      h4.modal-title Select a recently labeled image to open
+    .modal-body
+      form.form-inline
+        .form-group
+          label(for='h-overlay-name') Overlay Name
+          input#h-overlay-name.form-control(type='text', value=overlayName)
+        .form-group
+          label(for='h-label-creator') Creator
+          select#h-label-creator.form-control(type='text')
+            option(value='', selected= !creator) Any user
+            for user in users.models
+              option(value=user.id, selected= creator === user.id)
+                = user.get('login')
+      hr
+      .h-annotated-images-list-container

@@ -20,7 +20,7 @@ var SaveOverlay = View.extend({
             this.$('.h-open-image').bind('click', (ev) => ev.preventDefault());
         },
         'click .h-cancel': 'cancel',
-        'submit form': 'save'
+        'click .h-submit': 'save'
     },
 
     show(params, options) {
@@ -63,6 +63,7 @@ var SaveOverlay = View.extend({
     cancel(evt) {
         evt.preventDefault();
         this.$el.modal('hide');
+        $('.modal-backdrop').remove();
     },
 
     save(evt) {
@@ -71,7 +72,7 @@ var SaveOverlay = View.extend({
         if (!this.$('#h-overlay-name').val()) {
             this.$('#h-overlay-name').parent()
                 .addClass('has-error');
-            this.$('.g-validation-failed-message')
+            this.$('.overlay.g-validation-failed-message')
                 .text('Please enter a name.')
                 .removeClass('hidden');
             return;
@@ -81,7 +82,7 @@ var SaveOverlay = View.extend({
                 this.$('#h-overlay-item').val())) {
             this.$('#h-overlay-item').parent()
                 .addClass('has-error');
-            this.$('.g-validation-failed-message')
+            this.$('.overlay.g-validation-failed-message')
                 .text('Please select a "large image" item for the overlay.')
                 .removeClass('hidden');
             return;
@@ -94,6 +95,7 @@ var SaveOverlay = View.extend({
         });
         this.trigger('g:submit');
         this.$el.modal('hide');
+        $('.modal-backdrop').remove();
     },
 
     _selectOverlayItem(item) {

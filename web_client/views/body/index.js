@@ -1,5 +1,7 @@
 import ImageView from './ImageView';
+import headerEx from './headerEx';
 
 export {
-    ImageView
+    ImageView,
+    headerEx
 };

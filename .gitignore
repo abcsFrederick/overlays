@@ -7,3 +7,4 @@ env
 dist
 build
 larger_image.egg-info
+webpack.helper.js.bak

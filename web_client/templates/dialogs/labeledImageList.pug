@@ -1,0 +1,17 @@
+if !items.length
+  if inFetch
+    p Requesting labeled image list...
+  else
+    p Sorry, no labeled images were found.
+else
+  .list-group
+    each item in items
+      a.list-group-item.h-labeled-image(data-id=item.itemId, data-toggle='tooltip', title=paths[item.itemId].path)
+        .media
+          .media-left.media-middle
+            img(src=`api/v1/item/${item.itemId}/tiles/thumbnail?height=64&width=64`)
+          .media-body.media-middle
+            h4.media-heading #{paths[item.itemId].name}
+            p #{item.description}
+          .media-right.media-middle
+            p #{paths[item.itemId].overlays.length}

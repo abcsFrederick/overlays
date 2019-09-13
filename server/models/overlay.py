@@ -46,6 +46,7 @@ class Overlay(acl_mixin.AccessControlMixin, Model):
             'name',
             'opacity',
             'threshold',
+            'thresholdBit',
             'exclude',
             'overlayItemId',
             'offset',

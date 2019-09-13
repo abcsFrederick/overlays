@@ -7,6 +7,7 @@ import View from 'girder/views/View';
 import BrowserWidgetTemplate from '../templates/dialogs/browserWidget.pug';
 
 import 'girder/stylesheets/widgets/browserWidget.styl';
+import 'girder/utilities/jquery/girderModal';
 
 /**
  * This widget provides the user with an interface similar to a filesystem
@@ -90,7 +91,7 @@ var BrowserWidget = View.extend({
                 input: this.input,
                 selectItem: this.selectItem
             })
-        );
+        ).girderModal(this);
         this._renderRootSelection();
         return this;
     },
