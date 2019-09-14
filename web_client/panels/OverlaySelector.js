@@ -215,7 +215,7 @@ var OverlaySelector = Panel.extend({
 
     _onJobUpdate(evt) {
         if (this.parentItem && evt.data.status > 2 &&
-                evt.data.type !== 'large_image_histogram') {
+                evt.data.type !== 'histogram') {
             this._refreshOverlays();
         }
     },
