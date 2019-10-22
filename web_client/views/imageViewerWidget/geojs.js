@@ -4,9 +4,6 @@ import { apiRoot } from 'girder/rest';
 
 import GeojsImageViewerWidget from 'girder_plugins/large_image/views/imageViewerWidget/geojs';
 
-import registerAnnotationLayer from 'girder_plugins/configuration/views/widgets/annotationLayerEx.js';
-import registerLayer from 'girder_plugins/configuration/views/widgets/osmLayerEx.js';
-
 var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     initialize: function (settings) {
         this._globalOverlaysOpacity = settings.globalOverlaysOpacity || 1.0;
@@ -16,23 +13,11 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
     },
 
     render: function () {
-        var geo = window.geo;
-        registerLayer(geo);
-        registerAnnotationLayer(geo);
         var result = GeojsImageViewerWidget.prototype.render.call(this, arguments);
         // eslint-disable-next-line
         if (window.geo && this.tileWidth && this.tileHeight && !this.deleted && !this.viewer) {
             this.setGlobalOverlayOpacity(this._globalOverlaysOpacity);
         }
-        this.annotationLayer = this.viewer.createLayer('annotationEx', {
-            annotations: ['point', 'line', 'rectangle', 'polygon'],
-            showLabels: false
-        });
-        // this.annotationLayer.geoOn(
-        //     window.geo.event.actionup, (evt)=>{
-        //         console.log('up up');
-        //         console.log(evt);
-        //     })
         return result;
     },
 
@@ -139,25 +124,6 @@ var OverlayGeojsImageViewerWidget = GeojsImageViewerWidget.extend({
             geojsLayer.opacity(this._globalOverlaysOpacity * overlay.get('opacity') * (opacities[bin] === undefined ? 1 : opacities[bin]));
             this._overlays[index].layers[bin] = geojsLayer;
         });
-        var params = geo.util.pixelCoordinateParams(this.el, this.sizeX, this.sizeY, this.tileWidth, this.tileHeight);
-        params.layer.useCredentials = true;
-        params.layer.keepLower = false;
-        params.layer.url = this._getTileUrl('{z}', '{x}', '{y}', query, overlay.get('overlayItemId'));
-
-        params.layer.visible = overlay.get('displayed') && !(overlay.get('exclude') && _.contains(overlay.get('exclude'), query.bit));
-        var maxZoom = this.viewer.zoomRange().max - 1;
-        var offset = overlay.get('offset');
-        params.layer.tileOffset = (level) => {
-            var scale = Math.pow(2, level - maxZoom);
-            return {x: -offset.x * scale, y: -offset.y * scale};
-        };
-        params.layer.renderer = 'webgl';
-        var geojsLayer = this.viewer.createLayer('osmEx', params.layer);
-        geojsLayer.name('overlay');
-        geojsLayer.zIndex(this.featureLayer.zIndex());
-        var bin = query.bit ? query.bit : 0;
-        geojsLayer.opacity(this._globalOverlaysOpacity * overlay.get('opacity') * (opacities[bin] === undefined ? 1 : opacities[bin]));
-        this._overlays[index].layers[bin] = geojsLayer;
         this._setOverlayVisibility(index, overlay.get('displayed'));
 
         return index;
