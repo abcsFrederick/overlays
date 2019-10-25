@@ -73,7 +73,7 @@ before_install:
     - GIRDER_VERSION=2.x-maintenance
     - GIRDER_WORKER_VERSION=master
     - LARGE_IMAGE_VERSION=2.x-maintenance
-    - SLICER_CLI_WEB_VERSION=master
+    - SLICER_CLI_WEB_VERSION=2.x-maintenance
     - HISTOMICSTK_VERSION=master
     - HISTOGRAM_VERSION=master
     - COLORMAPS_VERSION=master
