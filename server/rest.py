@@ -27,7 +27,7 @@ from girder.api import access
 from girder.api.describe import describeRoute, Description
 from girder.api.rest import Resource, loadmodel, filtermodel
 from girder.constants import AccessType, SortDir
-from girder.exceptions import RestException
+from girder.exceptions import RestException, AccessException
 from girder.models.item import Item
 from girder.models.user import User
 from .models.overlay import Overlay
@@ -43,6 +43,7 @@ class OverlayResource(Resource):
 
         self.resourceName = 'overlay'
         self.route('GET', (), self.find)
+        self.route('GET', ('images',), self.findLabeledImages)
         self.route('POST', (), self.createOverlay)
         self.route('DELETE', (':id',), self.deleteOverlay)
         self.route('GET', (':id',), self.getOverlay)
@@ -172,3 +173,49 @@ class OverlayResource(Resource):
             update.pop(key, None)
         overlay.update(update)
         return Overlay().updateOverlay(overlay, user=user)
+
+    @describeRoute(
+        Description('Search for labeled images.')
+        .param('creatorId', 'Limit to annotations created by this user', required=False)
+        .pagingParams(defaultSort='updated', defaultSortDir=-1)
+        .errorResponse()
+    )
+    @access.public
+    def findLabeledImages(self, params):
+        limit, offset, sort = self.getPagingParameters(
+            params, 'updated', SortDir.DESCENDING)
+        user = self.getCurrentUser()
+        query = {}
+        if 'creatorId' in params:
+            creator = User().load(params['creatorId'], force=True)
+            query = {'creatorId': creator['_id']}
+        if 'name' in params:
+            query['name'] = {'$regex': '(?i).*' + params['name'] + '.*'}
+        overlays = Overlay().find(
+            query, sort=sort, fields=['itemId']
+        )
+
+        response = []
+        imageIds = set()
+        for overlay in overlays:
+            # short cut if the image has already been added to the results
+            if overlay['itemId'] in imageIds:
+                continue
+
+            try:
+                item = Overlay().load(overlay['_id'], level=AccessType.READ, user=user)
+            except AccessException:
+                item = None
+            print item
+            # ignore if no such item exists
+            if not item:
+                continue
+
+            if len(imageIds) >= offset:
+                response.append(item)
+
+            imageIds.add(item['_id'])
+            if len(response) == limit:
+                break
+
+        return response

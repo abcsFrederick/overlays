@@ -6,7 +6,6 @@ import OverlayOpenTemplate from '../../templates/body/OverlayOpenTemplate.pug';
 var HeaderLabelView = View.extend({
     events: {
         'click .h-open-labeled-image': function (evt) {
-            console.log('click');
             events.trigger('h:openLabeledImageUi');
         }
     },
