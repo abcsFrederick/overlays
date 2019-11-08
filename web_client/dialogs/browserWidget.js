@@ -91,7 +91,7 @@ var BrowserWidget = View.extend({
                 input: this.input,
                 selectItem: this.selectItem
             })
-        ).girderModal(this);
+        );
         this._renderRootSelection();
         return this;
     },

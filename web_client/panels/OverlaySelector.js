@@ -283,22 +283,30 @@ var OverlaySelector = Panel.extend({
     },
 
     createOverlay(evt) {
-        var params = {
-            overlay: new OverlayModel({itemId: this.parentItem.id})
-        };
-        var dialog = showSaveOverlayDialog(params, {title: 'Create overlay'});
-        this.listenToOnce(
-            dialog,
-            'g:submit',
-            () => {
-                params.overlay.save().done(() => {
-                    this.collection.add(params.overlay);
-                    this._setActiveOverlay(params.overlay);
-                    // this.trigger('h:editOverlay', params.overlay);
-                    // this._activeOverlay = params.overlay;
-                });
+        var folder = new FolderModel();
+        folder.set({_id: this.parentItem.get('folderId')}).fetch().then((folder) => {
+            var params = {
+                overlay: new OverlayModel({itemId: this.parentItem.id}),
+                overlayRoot: new FolderModel(folder)
+            };
+            if (this.dialog) {
+                this.dialog.destroy();
             }
-        );
+            this.dialog = showSaveOverlayDialog(params, {title: 'Create overlay'});
+            this.listenToOnce(
+                this.dialog,
+                'g:submit',
+                () => {
+                    params.overlay.save().done(() => {
+                        this.collection.add(params.overlay);
+                        this._setActiveOverlay(params.overlay);
+                        // this.trigger('h:editOverlay', params.overlay);
+                        // this._activeOverlay = params.overlay;
+                    });
+                }
+            );
+            return null;
+        });
     },
 
     _writeAccess(overlay) {

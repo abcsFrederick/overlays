@@ -7,6 +7,7 @@ girderTest.importPlugin('slicer_cli_web');
 girderTest.importPlugin('histogram');
 girderTest.importPlugin('colormaps');
 girderTest.importPlugin('HistomicsTK');
+girderTest.importPlugin('configuration');
 girderTest.importPlugin('overlays');
 
 // var app;

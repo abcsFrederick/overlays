@@ -151,7 +151,8 @@ var OverlayPropertiesWidget = Panel.extend({
                     this._histogramView.model.set(attributes);
                 } else {
                     this._histogramView.model.set(Object.assign({
-                        _id: undefined
+                        _id: undefined,
+                        fileId: undefined
                     }, attributes)).save();
                 }
                 this._histogramView.threshold = overlay.get('bitmask') ? overlay.get('thresholdBit') : overlay.get('threshold');

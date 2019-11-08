@@ -40,6 +40,9 @@ var SaveOverlay = View.extend({
                 description: this.overlay.get('description')
             })
         ).girderModal(this);
+        if (this._browserWidget) {
+            this._browserWidget.destroy();
+        }
         this._browserWidget = new BrowserWidget({
             parentView: this,
             titleText: 'Select an overlay...',
@@ -119,7 +122,6 @@ var dialog = new SaveOverlay({
 
 function show(params, options) {
     _.defaults(options, {'title': 'Create overlay'});
-
     dialog.show(params, options);
 
     return dialog;
