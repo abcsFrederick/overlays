@@ -225,8 +225,8 @@ describe('Test overlay panels', function () {
                 overlaySelector.setItem(girderItemModel);
             });
             waitsFor(function () {
-                return overlaySelector.parentItem.id;
-            }, 'test parent Item id created');
+                return overlaySelector.parentItem.id && overlaySelector.parentItem.get('folderId');
+            }, 'wait for parent Item id and parent folder id');
             runs(function () {
                 $('.h-create-overlay').click();
             });
