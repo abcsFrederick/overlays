@@ -206,7 +206,6 @@ class OverlayResource(Resource):
                 item = Overlay().load(overlay['_id'], level=AccessType.READ, user=user)
             except AccessException:
                 item = None
-            print item
             # ignore if no such item exists
             if not item:
                 continue
