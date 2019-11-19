@@ -99,7 +99,7 @@ const OpenLabeledImage = View.extend({
 
         data.limit = 10;
         restRequest({
-            url: 'overlay',
+            url: 'overlay/images',
             data
         }).then((_items) => {
             this.overlays = _items;
