@@ -7,6 +7,7 @@ from girder import events
 from girder.constants import AccessType, SortDir
 from girder.exceptions import ValidationException
 from girder.models.model_base import Model
+from girder.models.item import Item
 from girder.utility import acl_mixin
 
 
@@ -61,12 +62,23 @@ class Overlay(acl_mixin.AccessControlMixin, Model):
         self.update({'colormapId': event.info['_id']},
                     {'$unset': {'colormapId': ""}})
 
+    # May not work since model.item.remove event is never trigger from girder
     def _onItemRemove(self, event):
         item = event.info
         for overlay in self.find({'itemId': item['_id']}):
             self.remove(overlay)
         for overlay in self.find({'overlayItemId': item['_id']}):
             self.remove(overlay)
+
+    # Instead check overlay item when find
+    def checkOverlayItemAndRemove(self, id, user):
+        itemExist = Item().load(id=id, user=user, level=AccessType.READ)
+        if itemExist is None:
+            for overlay in self.find({'overlayItemId': id}):
+                self.remove(overlay)
+            return 1
+        return 0
+
 
     def _getMaxIndex(self, itemId):
         for overlay in self.find({'itemId': itemId},
