@@ -62,23 +62,13 @@ class Overlay(acl_mixin.AccessControlMixin, Model):
         self.update({'colormapId': event.info['_id']},
                     {'$unset': {'colormapId': ""}})
 
-    # May not work since model.item.remove event is never trigger from girder
+    # May not work if model is not initialized when load
     def _onItemRemove(self, event):
         item = event.info
-        for overlay in self.find({'itemId': item['_id']}):
+        for overlay in self.find({'itemId': str(item['_id'])}):
             self.remove(overlay)
-        for overlay in self.find({'overlayItemId': item['_id']}):
+        for overlay in self.find({'overlayItemId': str(item['_id'])}):
             self.remove(overlay)
-
-    # Instead check overlay item when find
-    def checkOverlayItemAndRemove(self, id, user):
-        itemExist = Item().load(id=id, user=user, level=AccessType.READ)
-        if itemExist is None:
-            for overlay in self.find({'overlayItemId': id}):
-                self.remove(overlay)
-            return 1
-        return 0
-
 
     def _getMaxIndex(self, itemId):
         for overlay in self.find({'itemId': itemId},

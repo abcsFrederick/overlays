@@ -81,18 +81,12 @@ class OverlayResource(Resource):
             query['creatorId'] = user['_id']
         if 'name' in params:
             query['name'] = {'$regex': '(?i).*' + params['name'] + '.*'}
-        overlays = list(Overlay().filterResultsByPermission(
+        return list(Overlay().filterResultsByPermission(
             cursor=Overlay().find(query, sort=sort),
             user=user,
             level=AccessType.READ,
             limit=limit, offset=offset
         ))
-        # check if overlayItemExit
-        for overlay in overlays:
-            overlayItemId = overlay['overlayItemId']
-            if Overlay().checkOverlayItemAndRemove(overlayItemId, user):
-                overlays.remove(overlay)
-        return overlays
 
     @describeRoute(
         Description('Create overlay for an item.')

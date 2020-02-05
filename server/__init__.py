@@ -22,7 +22,9 @@
 ###############################################################################
 
 from .rest import OverlayResource
-
+from .models.overlay import Overlay
 
 def load(info):
     info['apiRoot'].overlay = OverlayResource()
+    # initialize model and bind events
+    Overlay()
