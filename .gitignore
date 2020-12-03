@@ -1,3 +1,4 @@
+.DS_Store
 *.py[cod]
 node_modules
 _build
