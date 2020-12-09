@@ -3,7 +3,7 @@
     "description": "Overlays for the large_image plugin",
     "version": "1.1.1",
     "license": "Apache-2.0",
-    "dependencies": ["large_image", "histogram", "colormaps", "slicer_cli_web", "HistomicsTK", "configuration"],
+    "dependencies": ["large_image", "histogram", "colormaps", "slicer_cli_web", "HistomicsTK"],
     "grunt": {
         "file": "Gruntfile.js"
     }
