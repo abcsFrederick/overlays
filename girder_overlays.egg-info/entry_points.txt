@@ -1,3 +1,0 @@
-[girder.plugin]
-overlays = girder_overlays:OverlaysPlugin
-
