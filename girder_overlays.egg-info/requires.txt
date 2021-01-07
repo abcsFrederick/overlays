@@ -1,0 +1,6 @@
+girder-large-image
+large-image
+girder-histogram
+girder-colormaps
+girder-slicer-cli-web
+histomicsui
