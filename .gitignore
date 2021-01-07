@@ -7,5 +7,5 @@ _build
 env
 dist
 build
-larger_image.egg-info
+girder_overlays.egg-info
 webpack.helper.js.bak
