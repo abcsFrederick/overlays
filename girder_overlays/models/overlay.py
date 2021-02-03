@@ -52,6 +52,7 @@ class Overlay(acl_mixin.AccessControlMixin, Model):
             'overlayItemId',
             'offset',
             'colormapId',
+            'workflow'
         )
         self.exposeFields(AccessType.READ, fields)
 

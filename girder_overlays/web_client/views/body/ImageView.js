@@ -37,7 +37,6 @@ var OverlayImageView = ImageView.extend({
         this.listenTo(this.overlaySelector, 'h:moveOverlayDown', this._moveOverlayDown);
 
         this.render();
-        console.log(this)
         return result;
     },
 
