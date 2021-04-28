@@ -55,6 +55,7 @@ var OverlaySelector = Panel.extend({
         // Since bitmask info is not saved in database, refresh will cause front in
         // sync issue, especially histogram exclude and slider
         // this.listenTo(eventStream, 'g:eventStream.start', this._refreshOverlays);
+        this.listenTo(events, 'workflow:overlay', this._refreshOverlays);
     },
 
     _onAddOverlay(overlay, collection, options) {

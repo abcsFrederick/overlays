@@ -41,6 +41,7 @@ var OverlayImageView = ImageView.extend({
     },
 
     render() {
+        // var result = ImageView.prototype.render.apply(this, arguments);
         // Ensure annotations are removed from the popover widget on rerender.
         // This can happen when opening a new image while an annotation is
         // being hovered.
@@ -122,7 +123,10 @@ var OverlayImageView = ImageView.extend({
                     // show the right side control container
                     this.$('#h-annotation-selector-container').removeClass('hidden');
                     this.$('#h-overlay-selector-container').removeClass('hidden');
-
+                    
+                    $('<div/>').addClass('h-workflow-selector s-panel')
+                        .insertAfter(this.$('#h-metadata-panel'));
+                    
                     this.overviewWidget
                         .setViewer(this.viewerWidget)
                         .setElement('.h-overview-widget').render();
@@ -138,6 +142,10 @@ var OverlayImageView = ImageView.extend({
                     this.overlaySelector
                         .setViewer(this.viewerWidget)
                         .setElement('.h-overlay-selector').render();
+
+                    this.workflowSelector
+                        .setViewer(this.viewerWidget)
+                        .setElement('.h-workflow-selector');
 
                     this.overlaySelector.on('overlaySelectorFinish', () => {
                         this.overlaySelector.collection.each((model) => {

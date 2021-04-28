@@ -51,8 +51,7 @@ class Overlay(acl_mixin.AccessControlMixin, Model):
             'exclude',
             'overlayItemId',
             'offset',
-            'colormapId',
-            'workflow'
+            'colormapId'
         )
         self.exposeFields(AccessType.READ, fields)
 

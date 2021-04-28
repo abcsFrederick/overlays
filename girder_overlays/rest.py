@@ -25,7 +25,7 @@ from bson.objectid import ObjectId
 
 from girder.api import access
 from girder.api.describe import describeRoute, Description, autoDescribeRoute
-from girder.api.rest import Resource, loadmodel, filtermodel
+from girder.api.rest import Resource, loadmodel, filtermodel, TokenScope
 from girder.constants import AccessType, SortDir
 from girder.exceptions import RestException, AccessException
 from girder.models.item import Item
@@ -64,8 +64,8 @@ class OverlayResource(Resource):
         .errorResponse()
         .errorResponse('No matching overlays were found.', 404)
     )
-    @access.user
-    @filtermodel(model=Overlay)
+    @access.user(scope=TokenScope.DATA_READ)
+    @filtermodel(model='overlay', plugin='overlays')
     def find(self, params):
         user = self.getCurrentUser()
         limit, offset, sort = self.getPagingParameters(params)
@@ -119,15 +119,15 @@ class OverlayResource(Resource):
 
         return Overlay().createOverlay(overlay, user)
 
-    @describeRoute(
+    @autoDescribeRoute(
         Description('Delete an overlay.')
         .param('id', 'The ID of the overlay.', paramType='path')
         .errorResponse('ID was invalid.')
         .errorResponse('Write access was denied for the overlay.', 403)
     )
-    @access.user
+    @access.user(scope=TokenScope.DATA_OWN)
     @loadmodel(model='overlay', plugin='overlays', level=AccessType.WRITE)
-    @filtermodel(model=Overlay)
+    @filtermodel(model='overlay', plugin='overlays')
     def deleteOverlay(self, overlay, params):
         Overlay().remove(overlay)
 

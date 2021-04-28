@@ -25,7 +25,7 @@ block content
       - classes.push('h-active-overlay');
     if overlay.get('highlight')
       - classes.push('h-highlight-overlay')
-    .h-overlay(data-id=overlay.id, class=classes)
+    .h-overlay(data-id=overlay.id, data-itemid=overlay.get('overlayItemId'), class=classes)
       if loading
         span.icon-spin3.animate-spin.h-float-left
       else if displayed

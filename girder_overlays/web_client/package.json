@@ -20,7 +20,8 @@
             "slicer_cli_web",
             "histogram",
             "colormaps",
-            "histomicsui"
+            "histomicsui",
+            "ssrtask"
         ]
     }
 }
