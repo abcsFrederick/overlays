@@ -1,0 +1,27 @@
+{
+    "name": "@girder/overlays",
+    "version": "0.1.0",
+    "description": "Overlays for the large_image plugin.",
+    "homepage": "https://github.com/abcsFrederick/overlays",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/abcsFrederick/overlays"
+    },
+    "peerDependencies": {
+        "@girder/core": "*"
+    },
+    "main": "./index.js",
+    "girderPlugin": {
+        "name": "overlays",
+        "main": "./main.js",
+        "dependencies": [
+            "large_image_annotation",
+            "slicer_cli_web",
+            "histogram",
+            "colormaps",
+            "histomicsui",
+            "ssrtask"
+        ]
+    }
+}

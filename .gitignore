@@ -1,3 +1,4 @@
+.DS_Store
 *.py[cod]
 node_modules
 _build
@@ -6,5 +7,5 @@ _build
 env
 dist
 build
-larger_image.egg-info
+*.egg-info
 webpack.helper.js.bak
