@@ -9,7 +9,6 @@ import HistogramWidget from '@girder/histogram/views/widgets/histogramWidget';
 import ColormapModel from '@girder/colormaps/models/ColormapModel';
 import ColormapSelectorWidget from '@girder/colormaps/views/widgets/colormapSelectorWidget';
 
-
 import overlayPropertiesWidget from '../templates/panels/overlayPropertiesWidget.pug';
 import '../stylesheets/panels/overlayPropertiesWidget.styl';
 
@@ -84,9 +83,6 @@ var OverlayPropertiesWidget = Panel.extend({
             this._getOrCreateHistogram
         );
         this.listenTo(this, 'h:active-overlay-value', this._onActiveOverlay);
-
-        // FIXME: not here
-        this.listenTo(eventStream, 'g:event.job_status', _.debounce(this._onJobUpdate, 500));
 
         this._getOrCreateHistogram(this.overlay);
         this._setColormapId(this.overlay.get('colormapId'));
@@ -269,16 +265,6 @@ var OverlayPropertiesWidget = Panel.extend({
             this.colormap = null;
             if (this._histogramView) {
                 this._histogramView.setColormap();
-            }
-        }
-    },
-
-    // FIXME: not here
-    _onJobUpdate(evt) {
-        if (evt.data.status > 2 && evt.data.type === 'histogram') {
-            var overlayImageId = this.overlay.get('overlayItemId');
-            if (overlayImageId && evt.data.title.endsWith(overlayImageId)) {
-                this._getOrCreateHistogram(this.overlay);
             }
         }
     }
