@@ -15,7 +15,7 @@ var OverlayGeojsImageViewerWidgetExtension = function (viewer) {
     return viewer.extend({
         _getTileUrl: function (level, x, y, query, itemId) {
             itemId = itemId || this.itemId;
-            var url = getApiRoot() + '/item/' + itemId + '/tiles/zxy/' + level + '/' + x + '/' + y;
+            var url = getApiRoot() + '/item/' + itemId + '/tiles/extended/zxy/' + level + '/' + x + '/' + y;
             if (query) {
                 url += '?' + $.param(query);
             }
