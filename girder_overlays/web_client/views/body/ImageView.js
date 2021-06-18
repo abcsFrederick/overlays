@@ -208,6 +208,8 @@ var OverlayImageView = ImageView.extend({
     _removeOverlayPropertiesWidget() {
         if (this.overlayPropertiesWidget) {
             this.stopListening(this.overlayPropertiesWidget);
+            // Destroy its child views
+            this.overlayPropertiesWidget.destroy()
             this.overlayPropertiesWidget.remove();
             this.overlayPropertiesWidget = null;
             $('<div/>').addClass('h-overlay-properties-widget s-panel hidden')
